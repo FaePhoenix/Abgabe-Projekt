@@ -1,7 +1,0 @@
-3
-1;first_node;0;a,b,c,d,e,f,g,h,i,j
-11;second_node;1;a,b,c,d,e,f,g,h,i,j
-111;third_node;4;a,b,c,d,e,f,g,h,i,j
-0 1 0
-1 0 0
-1 1 0
