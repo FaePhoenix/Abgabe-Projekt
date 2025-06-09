@@ -1,0 +1,39 @@
+[x] Eingabe ist eine URL zu einem Wikipedia-Artikel, welche als Startpunkt des Wiki-Graphen dienen soll
+
+[x] Mittels des Moduls request (oder einem Ähnlichen Modul) kann der HTML-Quellcode des Wikipedia-Artikels runtergeladen und analysiert werden.
+    Hier beginnt nun der iterative Aufbau des Wiki-Graphs. Die aktuelle Seite soll in den Graphen eingetragen werden und für alle auf ihr 
+    verlinkten Artikelseiten sollen nun ebenfalls der Quellcode geladen und entsprechend analysiert werden.
+    Der Vorgang wird erst dann abgebrochen, wenn mindestens eine der folgenden Bedingungen eintritt:
+    - Eine maximale Anzahl K an Knoten im Graph ist erreicht
+    - Die maximale Distanz D (hier: Verlinkungsschritte) zum Ursprungsartikel darf nicht überschritten werden
+
+[x] Der Graph soll selbständig objektorientiert implementiert werden, d. h. es sollen eigene Klassen mit dazugehörigen Attributen
+    und Methoden geschrieben werden. Dafür dürfen auch die bereits in der Vorlesung erstellten Graphklassen verwendet werden.
+
+[x] Die Ausgabe des Graphs kann dann in Form einer Matrix erfolgen, welche in geeigneter Form in eine Datei gespeichert werden soll.
+
+[x] Die Parameter K und D sollen als Argumente anpassbar und per Default mit K = 500 und D = 10 belegt sein.
+
+[x] Zu jedem Knoten (welche ja einem Wikipedia-Artikel entsprechen) sollen die 10 wichtigsten Schlüsselwörter des Artikels extrahiert
+    und in einer Liste gespeichert werden. Schlüsselwörter sind hierbei Substantive, die im Artikel besonders häufig vorkommen
+    und somit eine hohe Relevanz haben. Die Schlüsselwörter sollen auch in geeigneter Form gespeichert werden.
+
+[x] Einfache Graphoperationen sollen implementiert sein, mindestens aber:
+    -> [x] Die Ausgabe der Dichte des Graphs
+    -> [x] Das Abfragen aller Nachbarknoten zu einem gegebenem Knoten
+    -> [x] Die Rückgabe der Knoten mit dem höchsten Eingangsgrad
+    -> [x] Die Rückgabe der Knoten mit dem höchsten Ausgangsgrad
+
+[ ] Es soll möglich sein, den Graphen nach gerichteten und ungerichteten Kreisen zu durchsuchen. Ein Kreis ist eine Folge von Knoten,
+    die alle unterschiedlich sind, wobei der erste und letzte Knoten identisch sind. Alle gefundenen Kreise sollen in geeignert Textform und visuell ausgegeben werden
+
+[ ] Stellt den Wiki-Graph auch visuell als Bild dar. Dafür dürfen beliebige schon vorhandene Pythonmodule zur Visuallisierung von Graphen benutzt werden.
+
+[ ] Features über CLI verfügbar machen
+
+=> Bugfix Edges to already known Nodes are to be added immediately
+
+opt:
+[ ] Multiprocessing für parallele Requests
+[ ] Progress Communication / opt Verbose Progress Communication
+[ ] dynamic Graphs for small inputs

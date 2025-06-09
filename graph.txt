@@ -1,0 +1,19 @@
+9
+1;eins;0;a,b,c,d,e,f,g,h,i,j
+2;zwei;0;a,b,c,d,e,f,g,h,i,j
+3;drei;0;a,b,c,d,e,f,g,h,i,j
+4;vier;0;a,b,c,d,e,f,g,h,i,j
+5;fünf;0;a,b,c,d,e,f,g,h,i,j
+6;sechs;0;a,b,c,d,e,f,g,h,i,j
+7;sieben;0;a,b,c,d,e,f,g,h,i,j
+8;acht;0;a,b,c,d,e,f,g,h,i,j
+9;neun;0;a,b,c,d,e,f,g,h,i,j
+0 1 0 0 1 1 0 0 0
+0 0 1 1 0 0 0 0 0
+0 0 0 1 0 0 0 0 0
+1 0 0 0 1 0 0 0 0
+1 0 1 0 0 1 0 0 0
+1 0 0 0 0 0 0 0 0
+1 0 0 0 0 0 0 1 0
+0 0 0 0 0 0 1 0 1
+0 0 0 0 0 0 1 0 0
