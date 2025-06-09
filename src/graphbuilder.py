@@ -1,8 +1,8 @@
-from nodequeue import NodeQueue
-from sorter import Sorter
-from graph import Graph
-from node import Node
-from edge import Edge
+from queue.nodequeue import NodeQueue
+from fetch.sorter import Sorter
+from graph.graph import Graph
+from graph.node import Node
+from graph.edge import Edge
 import time
 
 

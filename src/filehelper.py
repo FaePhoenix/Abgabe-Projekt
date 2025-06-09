@@ -1,6 +1,6 @@
-from graph import Graph
-from node import Node
-from edge import Edge
+from graph.graph import Graph
+from graph.node import Node
+from graph.edge import Edge
 
 class FileHelper:
     def __init__(self) -> None:

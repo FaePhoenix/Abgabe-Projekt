@@ -1,5 +1,5 @@
-from graphbuilder import GraphBuilder
-from filehelper import FileHelper
+from queue.graphbuilder import GraphBuilder
+from src.filehelper import FileHelper
 
 def main() -> int:
     builder = GraphBuilder(max_graph_size = 20)

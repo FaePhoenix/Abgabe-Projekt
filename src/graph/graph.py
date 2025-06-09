@@ -1,6 +1,6 @@
-from node import Node
-from edge import Edge
-from cycle import Cycle
+from graph.node import Node
+from graph.edge import Edge
+from graph.cycle import Cycle
 
 class Graph:
     def __init__(self, nodes:set[Node], edges:set[Edge]) -> None:

@@ -1,5 +1,5 @@
 import pyvis.network as pynet
-from graphbuilder import GraphBuilder
+from queue.graphbuilder import GraphBuilder
 
 
 class Visualizer:

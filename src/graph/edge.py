@@ -1,5 +1,5 @@
 import copy
-from node import Node
+from graph.node import Node
 
 
 class Edge:

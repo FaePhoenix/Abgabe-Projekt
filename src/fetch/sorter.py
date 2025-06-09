@@ -1,4 +1,4 @@
-from requester import Requester
+from fetch.requester import Requester
 from collections import Counter
 
 class Sorter:
