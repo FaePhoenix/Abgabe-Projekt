@@ -1,4 +1,4 @@
-from queue.nodequeue import NodeQueue
+from custom_queue.nodequeue import NodeQueue
 from fetch.sorter import Sorter
 from graph.graph import Graph
 from graph.node import Node

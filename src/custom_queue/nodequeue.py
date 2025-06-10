@@ -1,5 +1,5 @@
 import copy
-from queue.nodequeueentry import NodeQueueEntry
+from custom_queue.nodequeueentry import NodeQueueEntry
 
 
 class NodeQueue:
