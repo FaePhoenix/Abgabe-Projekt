@@ -1,5 +1,6 @@
-import pyvis.network as pynet
-from queue.graphbuilder import GraphBuilder
+import networkx as nx
+import matplotlib.pyplot as plt
+from filehelper import FileHelper
 
 
 class Visualizer:
@@ -8,26 +9,19 @@ class Visualizer:
     
 
 def main() -> int:
-    print("Calling main function in visualizer")
-    builder = GraphBuilder(max_graph_size = 20  , max_depth = 10)
-    graph = builder.build_graph_from_article(start_name = "Licht")
-    print(f"graph done")
-
-    net = pynet.Network(height = "1500px", width = "100%", directed = True, bgcolor = "#00052E", font_color = "white")
+    print("Calling main in visualizer")
+    helper = FileHelper()
+    graph = helper.read_graph_from_file(r"C:\Users\fae\Documents\Uni\Semester6\Skriptsprachen\Abgabe-Projekt\txtfiles\graph50.txt")
+    G = nx.DiGraph()
+    for node in graph.get_nodes():
+        G.add_node(node.get_id())
     
-    nodes = list(graph.get_nodes())
-    for node in nodes:
-        net.add_node(n_id = node.get_id(), label = node.get_name())
+    for edge in graph.get_edges():
+        G.add_edge(edge.get_start_id(), edge.get_end_id())
 
-    edges = list(graph.get_edges())
-    for edge in edges:
-        net.add_edge(source = edge.get_start_id(), to = edge.get_end_id())
-
-    net.barnes_hut()
-    net.show(name = "output.html", notebook = False)
-
+    nx.draw_networkx(G, with_labels=True)
+    plt.savefig(r"C:\Users\fae\Documents\Uni\Semester6\Skriptsprachen\Abgabe-Projekt\images\test50.png")
     return 0
-
 
 if __name__ == "__main__":
     main()

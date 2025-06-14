@@ -42,7 +42,7 @@ class Sorter:
         cleaned_words = [word .rstrip(",.;") for word in words]
         nominals = [word for word in cleaned_words if word.isalpha() and word[0].isupper() and len(word) > 2]
 
-        blacklist = ["Abschnitts", "Der", "Die", "Das", "Den", "Dem", "Des", "Ein", "Eine", "Einen", "Einem", "Eines", "Im", "In", "Dies", "Diese", "Dieser", "Dieses", "Er", "Sie", "Es", "Man"]
+        blacklist = ["Abschnitts", "Der", "Die", "Das", "Den", "Dem", "Des", "Ein", "Eine", "Einen", "Einem", "Eines", "Im", "In", "Dies", "Diese", "Dieser", "Dieses", "Er", "Sie", "Es", "Man", "Bei"]
         filtered_nominals = [nominal for nominal in nominals if nominal not in blacklist]
 
         frequencies = Counter(filtered_nominals).most_common()
