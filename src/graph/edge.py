@@ -1,7 +1,3 @@
-import copy
-from graph.node import Node
-
-
 class Edge:
     def __init__(self, start_id:int, end_id:int) -> None:
         self.__start_id = start_id

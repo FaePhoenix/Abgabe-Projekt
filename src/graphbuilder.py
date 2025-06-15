@@ -46,7 +46,8 @@ class GraphBuilder:
             try:
                 new_info = sorter.get_content(article_name)
 
-            except AssertionError:
+            except (AssertionError, AttributeError):
+                print(f"Blacklisting {article_name}")
                 self.__queue.add_article_to_blacklist(blacklisted_article = article_name)
                 continue
 

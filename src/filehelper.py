@@ -8,20 +8,28 @@ class FileHelper:
     
 
     def write_graph_to_file(self, graph:Graph, file_name:str) -> None:
+        print("starting writing")
         to_write = u""
         nodes = list(graph.get_nodes())
         node_count = len(nodes)
+        edge_count = node_count**2
         to_write += f"{node_count}\n"
+        print(f"writing {node_count} nodes and {edge_count} edge entries")
         nodes.sort(key = lambda node : node.get_id())
-
+        print("sorted nodes for writing")
+        finished_nodes = 0
         for node in nodes:
             to_write += f"{node.get_id()};{node.get_name()};{node.get_depth()};{u",".join(node.get_keywords())}\n"
+            finished_nodes += 1
+            print(f"Node done: {(finished_nodes/node_count):.2f}%")
 
         edges = graph.get_edges()
 
         connection_matrix = [[None for _ in range(node_count)] for _ in range(node_count)]
+        print("Built Connection matrix")
         ids = [node.get_id() for node in nodes]
-
+        print("Fetched Node ID's")
+        finished_edges = 0
         for row_idx, start_id in enumerate(ids):
             for col_idx, end_id in enumerate(ids):
                 potential_edge = Edge(start_id, end_id)
@@ -29,13 +37,20 @@ class FileHelper:
                     connection_matrix[row_idx][col_idx] = 1
                 else:
                     connection_matrix[row_idx][col_idx] = 0
+                finished_edges += 1
+                print(f"Edge done: {(finished_edges/edge_count):.2f}%")
 
+        finished_rows = 0
         for row in connection_matrix:
             to_write += f"{" ".join(map(str, row))}\n"
+            finished_rows += 1
+            print(f"Row done: {(finished_rows/node_count):.2f}%")
 
         to_write = to_write.rstrip("\n")
+        print("Actually writing to File")
         with open(file_name, "x", encoding="UTF8") as file:
             file.write(to_write)
+        print("Done")
         return None
     
     def read_graph_from_file(self, file_name:str) -> Graph | None:

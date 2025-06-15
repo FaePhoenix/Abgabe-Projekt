@@ -107,6 +107,13 @@ class Graph:
             found_cycles.update(self.__directed_cycle_finder(path = new_path))
 
         return found_cycles
+    
+    def get_node_name(self, id:int) -> str | None:
+        try:
+            node = self.__get_node_from_id(id)
+        except Exception:
+            return None
+        return node.get_name()
 
 
 def main() -> int:
