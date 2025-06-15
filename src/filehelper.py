@@ -15,36 +15,39 @@ class FileHelper:
         edge_count = node_count**2
         to_write += f"{node_count}\n"
         print(f"writing {node_count} nodes and {edge_count} edge entries")
+
         nodes.sort(key = lambda node : node.get_id())
         print("sorted nodes for writing")
+
         finished_nodes = 0
         for node in nodes:
             to_write += f"{node.get_id()};{node.get_name()};{node.get_depth()};{u",".join(node.get_keywords())}\n"
             finished_nodes += 1
-            print(f"Node done: {(finished_nodes/node_count):.2f}%")
+            print(f"Node done: {(100 * finished_nodes/node_count):.2f}%")
 
-        edges = graph.get_edges()
 
         connection_matrix = [[None for _ in range(node_count)] for _ in range(node_count)]
         print("Built Connection matrix")
+        
         ids = [node.get_id() for node in nodes]
         print("Fetched Node ID's")
+
         finished_edges = 0
         for row_idx, start_id in enumerate(ids):
+            out_ids = [edge.get_end_id() for edge in graph.get_node_from_id(start_id).get_outgoing()]
             for col_idx, end_id in enumerate(ids):
-                potential_edge = Edge(start_id, end_id)
-                if potential_edge in edges:
+                if end_id in out_ids:
                     connection_matrix[row_idx][col_idx] = 1
                 else:
                     connection_matrix[row_idx][col_idx] = 0
                 finished_edges += 1
-                print(f"Edge done: {(finished_edges/edge_count):.2f}%")
+                print(f"Edge done: {(100 * finished_edges/edge_count):.2f}%")
 
         finished_rows = 0
         for row in connection_matrix:
             to_write += f"{" ".join(map(str, row))}\n"
             finished_rows += 1
-            print(f"Row done: {(finished_rows/node_count):.2f}%")
+            print(f"Row done: {(100 * finished_rows/node_count):.2f}%")
 
         to_write = to_write.rstrip("\n")
         print("Actually writing to File")
@@ -97,7 +100,7 @@ class FileHelper:
 
     def __read_file(self, file_name:str) -> list[str] | None:
         try:
-            with open(file_name, "r") as file:
+            with open(file_name, "r", encoding="UTF8") as file:
                 file_content = file.readlines()
         except FileNotFoundError:
             return None

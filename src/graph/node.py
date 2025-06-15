@@ -15,14 +15,6 @@ class Node:
         self.__out:dict[(int, int), Edge] = {}
         return None
 
-
-    def traverse(self, graph:Graph, cycles:set[Cycle]) -> bool:
-        changed = False
-        for out in self.__out.values():
-            changed |= out.traverse(graph, cycles)
-        return changed
-        
-
     def __hash__(self) -> int:
         self_content = (self.__id, self.__name, tuple(self.__keywords), self.__depth)
         return hash(self_content)

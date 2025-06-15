@@ -1,7 +1,6 @@
 from graph.node import Node
 from graph.edge import Edge
 from graph.cycle import Cycle
-import time
 
 class Graph:
     def __init__(self, nodes:set[Node], edges:set[Edge]) -> None:
@@ -11,20 +10,7 @@ class Graph:
         return None
     
     def calculate_cycles(self) -> set[Cycle]:
-        cycles = []
-        changed = True
-        changed_new = False
-        while changed:
-            changed_new = False
-            start = time.time()
-            nodes = self.__nodes.values()
-            for node in nodes:
-                node_start = time.time()
-                changed_new = changed_new or node.traverse(self, cycles)
-                print(f"Node took {time.time() - node_start}s")
-            print(f"Step took {time.time() - start}s for {len(nodes)} nodes")
-            changed = changed_new
-        return cycles
+        return set()
         
 
     def __extend_nodes(self) -> None:
@@ -79,53 +65,10 @@ class Graph:
     def get_node_from_id(self, id:int) -> Node:
         return self.__nodes.get(id)
 
-    def get_all_direceted_cycles(self) -> set[Cycle]: #REDO w/ tarjan
-        cycles = set()
-        start_nodes = [node.get_id() for node in self.__nodes]
-
-        while len(start_nodes) != 0:
-            next_node = start_nodes.pop(0)
-            print(f"Starting run w/ {next_node}")
-
-            new_cycles = self.__directed_cycle_finder(path = [next_node])
-            cycles.update(new_cycles)
-
-            found_nodes = set()
-            for cycle in new_cycles:
-                found_nodes.update(cycle.get_path())
-            
-            removable = set(start_nodes) & found_nodes
-            for id in removable:
-                start_nodes.remove(id)
-
-        return cycles
-    
-    def __directed_cycle_finder(self, path:list[int]) -> set[Cycle]: 
-        if path[-1] in path[:-1]:
-
-            found_cycle = Cycle(path[path.index(path[-1]):-1])
-            print(f"Found cycle \"{found_cycle}\" in: {path}")
-            return set([found_cycle])
-        
-        end_node = self.__nodes.get(path[-1])
-        next_nodes = end_node.get_outgoing()
-
-        found_cycles = set()
-
-        if len(next_nodes) == 0:
-            print(f"Found dead end for {path}")
-            return found_cycles
-        
-        for node in next_nodes:
-            new_path = path.copy()
-            new_path.append(node)
-            found_cycles.update(self.__directed_cycle_finder(path = new_path))
-
-        return found_cycles
     
     def get_node_name(self, id:int) -> str | None:
         try:
-            node = self.__get_node_from_id(id)
+            node = self.get_node_from_id(id)
         except Exception:
             return None
         return node.get_name()

@@ -16,22 +16,6 @@ class Edge:
     
     def get_end_id(self) -> int:
         return self.__end_id
-    
-    def traverse(self, graph, cycles:set[Cycle]) -> bool:
-        paths = self.__paths.copy()
-        self.__paths = []
-        for path in paths:
-            last_id = path[-1]
-            last_node = graph.get_node_from_id(last_id)
-            for outgoing in last_node.get_outgoing():
-                out_id = outgoing.get_end_id()            
-                if out_id == path[0]:
-                    cycles.add(Cycle(path))
-                elif out_id not in path:
-                    new_path = path.copy()
-                    new_path.append(out_id)
-                    self.__paths.append(new_path)
-        return bool(self.__paths)
 
 
     def __hash__(self) -> int:
