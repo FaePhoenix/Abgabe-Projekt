@@ -12,7 +12,7 @@ class Node:
         return None
 
     def __hash__(self) -> int:
-        self_content = (self.__id, self.__name, self.__keywords, self.__depth)
+        self_content = (self.__id, self.__name, tuple(self.__keywords), self.__depth)
         return hash(self_content)
     
     def __eq__(self, other) -> bool:

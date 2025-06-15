@@ -36,6 +36,5 @@ def main() -> int:
     plt.savefig(r"C:\Users\fae\Documents\Uni\Semester6\Skriptsprachen\Abgabe-Projekt\images\graph50.png")
     return 0
 
-
 if __name__ == "__main__":
     main()
