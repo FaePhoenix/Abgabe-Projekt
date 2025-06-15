@@ -56,6 +56,7 @@ class FileHelper:
     def read_graph_from_file(self, file_name:str) -> Graph | None:
         file_content = self.__read_file(file_name = file_name)
         if file_content == None:
+            print("fehler")
             return None
         
         node_count = int(file_content[0])
@@ -96,7 +97,7 @@ class FileHelper:
 
     def __read_file(self, file_name:str) -> list[str] | None:
         try:
-            with open(file_name, "rt") as file:
+            with open(file_name, "r") as file:
                 file_content = file.readlines()
         except FileNotFoundError:
             return None

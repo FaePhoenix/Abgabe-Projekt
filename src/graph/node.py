@@ -1,5 +1,9 @@
 from __future__ import annotations
-
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from graph.graph import Graph
+    from graph.edge import Edge
+from graph.cycle import Cycle
 
 class Node:
     def __init__(self, id:int, name:str, keywords:list[str], depth:int) -> None:
@@ -7,9 +11,17 @@ class Node:
         self.__name:str = name
         self.__keywords:list[str] = keywords
         self.__depth:int = depth
-        self.__in:list[int] = []
-        self.__out:list[int] = []
+        self.__in:dict[(int, int), Edge] = {}
+        self.__out:dict[(int, int), Edge] = {}
         return None
+
+
+    def traverse(self, graph:Graph, cycles:set[Cycle]) -> bool:
+        changed = False
+        for out in self.__out.values():
+            changed |= out.traverse(graph, cycles)
+        return changed
+        
 
     def __hash__(self) -> int:
         self_content = (self.__id, self.__name, tuple(self.__keywords), self.__depth)
@@ -35,18 +47,18 @@ class Node:
     def get_keywords(self) -> list[str]:
         return self.__keywords
     
-    def get_incoming(self) -> list[int]:
-        return self.__in
+    def get_incoming(self) -> list[Edge]:
+        return list(self.__in.values())
     
-    def add_incoming(self, id:int) -> None:
-        self.__in.append(id)
+    def add_incoming(self, incoming:Edge) -> None:
+        self.__in[(incoming.get_start_id(), incoming.get_end_id())] = incoming
         return None
     
-    def get_outgoing(self) -> list[int]:
-        return self.__out
+    def get_outgoing(self) -> list[Edge]:
+        return list(self.__out.values())
     
-    def add_outgoin(self, id:int) -> None:
-        self.__out.append(id)
+    def add_outgoing(self, outgoing:Edge) -> None:
+        self.__out[(outgoing.get_start_id(), outgoing.get_end_id())] = outgoing
         return None
 
 

@@ -1,7 +1,5 @@
 from graphbuilder import GraphBuilder
 from filehelper import FileHelper
-from graphbuilder import GraphBuilder
-from filehelper import FileHelper
 
 def main() -> int:
     builder = GraphBuilder(max_graph_size = 500)
