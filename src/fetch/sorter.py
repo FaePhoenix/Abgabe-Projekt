@@ -1,12 +1,14 @@
 from fetch.requester import Requester
 from collections import Counter
+from typing import Any
+
 
 class Sorter:
     def __init__(self) -> None:
         return None
 
     
-    def get_content(self, name:str) -> dict:
+    def get_content(self, name:str) -> dict[str, Any]:
         requester = Requester()
         response = requester.request_content(articlename = name)
         return self.__sort_wiki_json(response_json = response)
