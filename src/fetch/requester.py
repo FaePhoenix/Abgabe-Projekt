@@ -11,9 +11,8 @@ class Requester:
         return self.__get_content_from_response(raw_response)
 
     def __get_wikiapi_response(self, article_name:str) -> requests.Response:
-        wiki_api_domain = "https://de.wikipedia.org/w/api.php?action=parse&page="
-        format = "&format=json"
-        full_link = wiki_api_domain + article_name + format
+        wiki_api_domain = "https://de.wikipedia.org/w/api.php?action=parse&format=json&page="
+        full_link = wiki_api_domain + article_name
 
         response = requests.get(full_link)
 
@@ -24,16 +23,6 @@ class Requester:
 
     def __get_content_from_response(self, response:requests.Response) -> dict:
         return response.json()
-
-    #depricated
-    def log_request(self, latest_response:requests.Response) -> None:
-        with open("latest_request.txt", "w", encoding="utf-8") as file:
-            file.write(latest_response.text)
-    
-    #depricated
-    def log_request(self, latest_response:str) -> None:
-        with open("latest_request.txt", "w", encoding="utf-8") as file:
-            file.write(latest_response)
 
 
 def main() -> int:

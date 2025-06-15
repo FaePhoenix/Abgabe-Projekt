@@ -1,9 +1,8 @@
-from queue.nodequeue import NodeQueue
+from custom_queue.nodequeue import NodeQueue
 from fetch.sorter import Sorter
 from graph.graph import Graph
 from graph.node import Node
 from graph.edge import Edge
-import time
 
 
 class GraphBuilder:
@@ -11,10 +10,10 @@ class GraphBuilder:
         self.__max_graph_size:int = max_graph_size
         self.__max_depth:int = max_depth
         self.__edges:list[Edge] = []
-        self.__nodes:list[Node] = []
+        self.__nodes:dict[str, Node] = {}
         return None
     
-    def build_graph_from_article(self, start_name:str) -> Graph:
+    def build_graph_from_article(self, start_name:str) -> Graph | None:
         sorter = Sorter()
         queue = NodeQueue(starting_name = start_name)
 
@@ -22,69 +21,66 @@ class GraphBuilder:
             starting_info = sorter.get_content(start_name)
         except AssertionError:
             #print(f"Aborting graph construction, because inital article \"{start_name}\" could not be found.")
-            return Graph()
+            return None
         
         starting_id = starting_info.get("id")
         self.__add_node(node_id = starting_id, node_name = starting_info.get("name"), node_data = starting_info.get("keywords"), node_depth = 0)
+
+        
         queue.add_new_entries(new_links = starting_info.get("links"), origin_id = starting_id, origin_depth = 0)
 
         while len(self.__nodes) < self.__max_graph_size:
             print(f"Current amount of existing nodes: {len(self.__nodes)}")
             try:
-                next = queue.get_next_entry()
+                next_queue_entry = queue.get_next_entry()
 
             except ValueError:
                 #print(f"Exiting Graph creation as no further connections have been found.")
                 break
             
-            article_name = next.get_name()
-            article_depth = next.get_depth()
-            #print(f"Attempting to get article: {article_name}\nFirst seen in:{next.get_origins()[0]}, last seen in: {next.get_origins()[-1]}")
+            article_name = next_queue_entry.get_name()
+            article_depth = next_queue_entry.get_depth()
             
-            request_start = time.time()
             try:
                 new_info = sorter.get_content(article_name)
 
             except AssertionError:
-                #print(f"Can't find article \"{article_name}\". Skipping and adding to blacklist")
                 queue.add_article_to_blacklist(blacklisted_article = article_name)
                 continue
-            request_end = time.time()
 
-            node_start = time.time()
             article_id = new_info.get("id")
             self.__add_node(node_id = article_id, node_name = article_name, node_data = new_info.get("keywords"), node_depth = article_depth)
-            self.__add_edges_toward_node(id_list = next.get_origins(), node_id = article_id)
-            node_end = time.time()
+            self.__add_edges_toward_node(id_list = next_queue_entry.get_origins(), node_id = article_id)
 
             links = new_info.get("links")
+            new_links = []
+            build_links = []
+            for link in links:
+                if link in self.__nodes.keys():
+                    build_links.append(link)
+                else: 
+                    new_links.append(link)
 
-            queue_start = time.time()
-            if next.get_depth() < self.__max_depth:
-                queue.add_new_entries(new_links = links, origin_id = article_id, origin_depth = article_depth)
+            ids = [node.get_id() for node in self.__nodes.values() if node.get_name() in build_links]
+            for id in ids:
+                new_edge = Edge(article_id, id)
+                self.__edges.append(new_edge)
+
+            if next_queue_entry.get_depth() < self.__max_depth:
+                queue.add_new_entries(new_links, article_id, article_depth)
             else:
-                queue.only_update_entries(new_links = links, origin_id = article_id, origin_depth = article_depth)
-            queue_end = time.time()
+                queue.only_update_entries(new_links, article_id, article_depth)
 
-            request_time = request_end - request_start
-            node_time = node_end - node_start
-            queue_time = queue_end - queue_start
-            time_sum = request_time + node_time + queue_time
-            print(f"Took {format(time_sum*1000, ".6f")}ms: Request {format(request_time/time_sum * 100, ".4f")}%, Node {format(node_time/time_sum * 100, ".4f")}%, Queue {format(queue_time/time_sum * 100, ".4f")}%")
-
-
-        network = Graph(nodes = self.__nodes, edges = self.__edges)
+        network = Graph(nodes = list(self.__nodes.values()), edges = self.__edges)
 
         return network
 
     def __add_node(self, node_id:int, node_name:str, node_data:list[str], node_depth:int) -> None:
-        #print(f"Adding new Node\nid: {node_id}, name: {node_name}, depth: {node_depth}")
         new_node = Node(id = node_id, name = node_name, keywords = node_data, depth = node_depth)
-        self.__nodes.append(new_node)
+        self.__nodes[node_name] = new_node
         return None
 
     def __add_edges_toward_node(self, id_list:list[int], node_id:int) -> None:
-        #print(f"Adding {len(id_list)} new edges")
         for connection_id in id_list:
             new_edge = Edge(start_id = connection_id, end_id = node_id)
             self.__edges.append(new_edge)

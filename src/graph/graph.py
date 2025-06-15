@@ -64,7 +64,7 @@ class Graph:
                 return node
 
 
-    def get_all_direceted_cycles(self) -> set[Cycle]:
+    def get_all_direceted_cycles(self) -> set[Cycle]: #REDO w/ tarjan
         cycles = set()
         start_nodes = [node.get_id() for node in self.__nodes]
 
@@ -85,7 +85,7 @@ class Graph:
 
         return cycles
     
-    def __directed_cycle_finder(self, path:list[int]) -> set[Cycle]:
+    def __directed_cycle_finder(self, path:list[int]) -> set[Cycle]: 
         if path[-1] in path[:-1]:
 
             found_cycle = Cycle(path[path.index(path[-1]):-1])

@@ -33,7 +33,7 @@ class FileHelper:
         for row in connection_matrix:
             to_write += f"{" ".join(map(str, row))}\n"
 
-        to_write.rstrip("\n")
+        to_write = to_write.rstrip("\n")
         with open(file_name, "x", encoding="UTF8") as file:
             file.write(to_write)
         return None
@@ -60,12 +60,12 @@ class FileHelper:
         nodes = []
         for line in node_lines:
             node_attributes = line.split(";")
-            id = int(node_attributes[0])
+            node_id = int(node_attributes[0])
             name = node_attributes[1]
             depth = int(node_attributes[2])
             cleaned = node_attributes[3].rstrip()
             keywords = cleaned.split(",")
-            nodes.append(Node(id = id, name = name, depth = depth, keywords = keywords))
+            nodes.append(Node(id = node_id, name = name, depth = depth, keywords = keywords))
         return nodes
 
     def __extract_edges(self, edge_lines:list[str], node_ids:list[int]) -> set[Edge]:
@@ -77,7 +77,6 @@ class FileHelper:
                 if int(entry) == 0:
                     continue
                 edges.add(Edge(start_id = node_ids[row_idx], end_id = node_ids[col_idx]))
-            pass
         return edges
 
     def __read_file(self, file_name:str) -> list[str] | None:
@@ -90,8 +89,6 @@ class FileHelper:
 
 def main()-> int:
     print("Calling main function in filehelper")
-    filehelper = FileHelper()
-    a = filehelper.__read_file("a")
     return 0
 
 

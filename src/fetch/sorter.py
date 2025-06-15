@@ -15,17 +15,17 @@ class Sorter:
         raw = response_json.get("parse")
         if raw == None:
             print(f"Gewaltiges Problem:\n{response_json}")
-        sorted = {}
+        sorted_entries = {}
 
-        sorted["name"] = raw.get("title")
-        sorted["id"] = raw.get("pageid")
+        sorted_entries["name"] = raw.get("title")
+        sorted_entries["id"] = raw.get("pageid")
         raw_text = raw.get("text").get("*")
-        sorted["keywords"] = self.__find_keywords(text = raw_text)
+        sorted_entries["keywords"] = self.__find_keywords(text = raw_text)
 
         links_wrapped = raw.get("links")
-        sorted["links"] = self.__unwrap_links(raw_links = links_wrapped)
+        sorted_entries["links"] = self.__unwrap_links(raw_links = links_wrapped)
 
-        return sorted
+        return sorted_entries
     
     def __unwrap_links(self, raw_links:list) -> list:
         unwrapped_links = []
@@ -37,7 +37,7 @@ class Sorter:
             unwrapped_links.append(converted_link)
         return unwrapped_links
     
-    def __find_keywords(self, text:str) -> str:
+    def __find_keywords(self, text:str) -> list[str]:
         words = text.split(" ")
         cleaned_words = [word .rstrip(",.;") for word in words]
         nominals = [word for word in cleaned_words if word.isalpha() and word[0].isupper() and len(word) > 2]

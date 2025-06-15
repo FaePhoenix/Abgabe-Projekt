@@ -28,6 +28,7 @@ class Edge:
     
 
 def main() -> int:
+    print("Calling main function in edge")
     return 0
 
 
