@@ -1,9 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from graph.graph import Graph
     from graph.edge import Edge
-from graph.cycle import Cycle
 
 class Node:
     def __init__(self, id:int, name:str, keywords:list[str], depth:int) -> None:

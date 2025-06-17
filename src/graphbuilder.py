@@ -27,7 +27,8 @@ class GraphBuilder:
             return None
         
         starting_id = starting_info.get("id")
-        self.__add_node(node_id = starting_id, node_name = starting_info.get("name"), node_data = starting_info.get("keywords"), node_depth = 0)
+        starting_name = starting_info.get("name")
+        self.__add_node(node_id = starting_id, node_name = starting_name, node_data = starting_info.get("keywords"), node_depth = 0)
 
         self.__queue.add_new_entries(new_links = starting_info.get("links"), origin_id = starting_id, origin_depth = 0)
 

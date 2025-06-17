@@ -1,8 +1,3 @@
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from graph.graph import Graph
-from graph.cycle import Cycle
-
 
 class Edge:
     def __init__(self, start_id:int, end_id:int) -> None:

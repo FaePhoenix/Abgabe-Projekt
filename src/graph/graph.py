@@ -1,10 +1,9 @@
 from graph.node import Node
 from graph.edge import Edge
-from graph.cycle import Cycle
+from cycles.cycle import Cycle
 
 class Graph:
-    def __init__(self, origin:str, nodes:set[Node], edges:set[Edge]) -> None:
-        self.__origin:str = origin
+    def __init__(self, nodes:set[Node], edges:set[Edge]) -> None:
         self.__nodes:dict[int, Node] = { node.get_id() : node for node in nodes}
         self.__edges:dict[(int, int), Edge] = {(edge.get_start_id(), edge.get_end_id()) : edge for edge in edges}
         self.__extend_nodes()
