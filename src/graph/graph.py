@@ -3,15 +3,19 @@ from graph.edge import Edge
 from graph.cycle import Cycle
 
 class Graph:
-    def __init__(self, nodes:set[Node], edges:set[Edge]) -> None:
+    def __init__(self, origin:str, nodes:set[Node], edges:set[Edge]) -> None:
+        self.__origin:str = origin
         self.__nodes:dict[int, Node] = { node.get_id() : node for node in nodes}
         self.__edges:dict[(int, int), Edge] = {(edge.get_start_id(), edge.get_end_id()) : edge for edge in edges}
         self.__extend_nodes()
         return None
     
+
+    def get_origin(self) -> str:
+        return self.__origin
+    
     def calculate_cycles(self) -> set[Cycle]:
-        return set()
-        
+        return set()   
 
     def __extend_nodes(self) -> None:
         for edge in self.__edges.values():
