@@ -3,6 +3,7 @@ from filehelper import FileHelper
 from cycles.cycle_calculator import Cyclecalculator
 
 def main() -> int:
+    #Just used for testing out new components and how they work together with old components
     helper = FileHelper()
     graph = helper.read_graph_from_file(r"C:\Users\fae\Documents\Uni\Semester6\Skriptsprachen\Abgabe-Projekt\txtfiles\graph.txt")
 

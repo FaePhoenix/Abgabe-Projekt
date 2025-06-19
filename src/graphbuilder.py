@@ -33,14 +33,13 @@ class GraphBuilder:
         self.__queue.add_new_entries(new_links = starting_info.get("links"), origin_id = starting_id, origin_depth = 0)
 
         while len(self.__nodes) < self.__max_graph_size:
-            print(f"Current amount of existing nodes: {len(self.__nodes)}")
-            try:
-                next_queue_entry = self.__queue.get_next_entry()
-
-            except ValueError:
-                #print(f"Exiting Graph creation as no further connections have been found.")
-                break
+            #print(f"Current amount of existing nodes: {len(self.__nodes)}")
             
+            next_queue_entry = self.__queue.get_next_entry()
+            
+            if next_queue_entry == None:
+                break
+
             article_name = next_queue_entry.get_name()
             article_depth = next_queue_entry.get_depth()
             
