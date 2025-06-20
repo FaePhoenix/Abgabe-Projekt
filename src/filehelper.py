@@ -3,36 +3,54 @@ from graph.node import Node
 from graph.edge import Edge
 
 class FileHelper:
+    """
+    A class encapsulating methods for handeling graph files
+
+    Methods:
+    --------
+    write_graph_to_file(graph : Graph, file_name : str)
+        Writes the given graph into a file at filename
+
+    read_graph_from_file(file_name : str)
+        Reads the file at file_name and returns the saved graph
+    """
+
+
     def __init__(self) -> None:
+        """
+        Sets up the object
+        """
+
         return None
     
 
     def write_graph_to_file(self, graph:Graph, file_name:str) -> None:
-        print("starting writing")
+        """
+        Writes the given graph into a file at file_name in a text format
+
+        Parameters:
+        -----------
+        graph : Graph
+            The graph to save
+
+        file_name : str
+            The location to save to
+        """
+
         to_write = u""
         nodes = list(graph.get_nodes())
         node_count = len(nodes)
-        edge_count = node_count**2
         to_write += f"{node_count}\n"
-        print(f"writing {node_count} nodes and {edge_count} edge entries")
 
         nodes.sort(key = lambda node : node.get_id())
-        print("sorted nodes for writing")
 
-        finished_nodes = 0
         for node in nodes:
             to_write += f"{node.get_id()};{node.get_name()};{node.get_depth()};{u",".join(node.get_keywords())}\n"
-            finished_nodes += 1
-            print(f"Node done: {(100 * finished_nodes/node_count):.2f}%")
-
 
         connection_matrix = [[None for _ in range(node_count)] for _ in range(node_count)]
-        print("Built Connection matrix")
         
         ids = [node.get_id() for node in nodes]
-        print("Fetched Node ID's")
 
-        finished_edges = 0
         for row_idx, start_id in enumerate(ids):
             out_ids = [edge.get_end_id() for edge in graph.get_node_from_id(start_id).get_outgoing()]
             for col_idx, end_id in enumerate(ids):
@@ -40,26 +58,27 @@ class FileHelper:
                     connection_matrix[row_idx][col_idx] = 1
                 else:
                     connection_matrix[row_idx][col_idx] = 0
-                finished_edges += 1
-                print(f"Edge done: {(100 * finished_edges/edge_count):.2f}%")
 
-        finished_rows = 0
         for row in connection_matrix:
             to_write += f"{" ".join(map(str, row))}\n"
-            finished_rows += 1
-            print(f"Row done: {(100 * finished_rows/node_count):.2f}%")
 
         to_write = to_write.rstrip("\n")
-        print("Actually writing to File")
         with open(file_name, "x", encoding="UTF8") as file:
             file.write(to_write)
-        print("Done")
         return None
     
     def read_graph_from_file(self, file_name:str) -> Graph | None:
+        """
+        Reads the file at file_name and returns the saved graph
+
+        Parameters:
+        -----------
+        file_name : str
+            The location to read
+        """
+
         file_content = self.__read_file(file_name = file_name)
         if file_content == None:
-            print("fehler")
             return None
         
         node_count = int(file_content[0])
@@ -75,7 +94,16 @@ class FileHelper:
 
 
 
-    def __extract_nodes(self, node_lines:str) -> list[Node]:
+    def __extract_nodes(self, node_lines:list[str]) -> list[Node]:
+        """
+        Converts the saved text format into a list of Node objects
+
+        Paramters:
+        ----------
+        node_lines : list[str]
+            The lines of the saved graph file that contain node information
+        """
+
         nodes = []
         for line in node_lines:
             node_attributes = line.split(";")
@@ -88,6 +116,18 @@ class FileHelper:
         return nodes
 
     def __extract_edges(self, edge_lines:list[str], node_ids:list[int]) -> set[Edge]:
+        """
+        Converts the saved text format into a set of edge objects
+
+        Paramters:
+        ----------
+        edge_lines : list[str]
+            The lines of the saved graph file that contain edge information
+        
+        node_ids : list[int]
+            The ID's of the nodes
+        """
+
         edges = set()
         for row_idx, edge_line in enumerate(edge_lines):
             cleaned_line = edge_line.rstrip()
@@ -99,6 +139,15 @@ class FileHelper:
         return edges
 
     def __read_file(self, file_name:str) -> list[str] | None:
+        """
+        Read the file at file_name and return the content
+
+        Parameters:
+        -----------
+        file_name : str
+            The file location
+        """
+        
         try:
             with open(file_name, "r", encoding="UTF8") as file:
                 file_content = file.readlines()
