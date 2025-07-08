@@ -74,7 +74,7 @@ class Parser:
         return None
             
     def __default(self, command:str = None) -> None:
-        if command == None:
+        if command is None:
             default_statement = '' \
             'Please enter any command. Refer to the help command for a list of available commands.'
         else:
