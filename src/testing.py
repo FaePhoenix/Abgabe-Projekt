@@ -1,6 +1,5 @@
 from graphbuilder import GraphBuilder
 from filehelper import FileHelper
-from cycles.cycle_calculator import Cyclecalculator
 from cycles.tarjan_calculator import TarjanCalculator
 
 def main() -> int:
