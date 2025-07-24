@@ -9,8 +9,9 @@ class Parser:
     
     def run(self) -> None:
         intro_statement = '' \
+        '-------------------------------------------\n' \
         'Starting Wiki-Graph command-line-interface.\n' \
-        'Please start by using \'help\' to familiarize yourself with the available commands.' \
+        'Please start by using \'help\' to familiarize yourself with the available commands.\n' \
         'made by Fae Körper.'
 
         print(intro_statement)
@@ -55,7 +56,9 @@ class Parser:
                     self.__default(command)
             print('\n')
                 
-        exit_statement = 'Successfully exited.'
+        exit_statement = '' \
+        '---------------------\n' \
+        'Successfully exited.'
 
         print(exit_statement)
                     
@@ -88,6 +91,7 @@ class Parser:
 
     def __help(self) -> None:
         help_statement = '' \
+        '----------------------------------------------------------------------\n' \
         'The is a command line interface created by Fae Körper for FMI-BI0058.\n' \
         'The project aims to collect and visualize information about wikipedia articles.\n' \
         'Each Command has an \'-h\' option to further specify use and available options.\n' \
