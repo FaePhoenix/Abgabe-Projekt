@@ -1,4 +1,8 @@
+from cli.cli import Parser
+
 def main() -> int:
+    parser = Parser()
+    parser.run()
     return 0
 
 
