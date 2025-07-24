@@ -1,6 +1,10 @@
+from graph.graph import Graph
+
+
 class Parser:
     def __init__(self) -> None:
         self.running : bool = True
+        self.graphs: dict[str, Graph]
         return None
     
     def run(self) -> None:
@@ -25,7 +29,8 @@ class Parser:
                 case "help":
                     self.__help()
                     
-                case "view": 
+                case "view":
+                    self.__view(options)
                     continue
 
                 case "read":
@@ -54,6 +59,32 @@ class Parser:
 
         print(exit_statement)
                     
+    def __parse_options(self, user_options:list[str], valid_options:dict[str, int]) -> tuple[list[list[str]], list[list[str]]]:
+        valid_user_options = []
+        invalid_user_options = []
+
+        options_positions = [idx for idx, user_option in enumerate(user_options) if user_option[0] == "-"]
+        options_positions.append(len(user_options))
+
+        for idx in len(options_positions) - 1:
+
+            chunk = user_options[options_positions[idx]:options_positions[idx + 1]]
+            
+            if chunk[0] not in valid_options.keys():
+                invalid_user_options.append(chunk)
+                continue
+                
+            if len(chunk) != valid_options[chunk[0]]:
+                invalid_user_options.append(chunk)
+                continue
+
+            valid_user_options.append(chunk)
+
+        return (valid_user_options, invalid_user_options)
+        
+
+
+
 
     def __help(self) -> None:
         help_statement = '' \
@@ -85,7 +116,14 @@ class Parser:
         print(default_statement)
         return None
 
+    def __view(self, options: list[str]) -> None:
+        available_options = ["-h", "-v"]
+        for option in options:
+            if option not in available_options:
+                out_statement = '' \
+                'The view command is used to list all currently active graphs. The available options include'
 
+        return None
     
 def main() -> int:
     return 0
