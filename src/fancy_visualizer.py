@@ -11,7 +11,7 @@ def main() -> int:
     print("Calling main function in visualizer")
     builder = GraphBuilder(max_graph_size = 20  , max_depth = 10)
     graph = builder.build_graph_from_article(start_name = "Licht")
-    print(f"graph done")
+    print("graph done")
 
     net = pynet.Network(height = "1500px", width = "100%", directed = True, bgcolor = "#00052E", font_color = "white")
     
