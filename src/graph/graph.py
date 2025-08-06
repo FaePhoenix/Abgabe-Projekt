@@ -8,6 +8,9 @@ class Graph:
 
     Attributes:
     -----------
+    __root : str
+        The name of the start-article of the graph
+
     __nodes : dict[int, Node]
         A map from the ID's to the associated nodes
 
@@ -18,6 +21,9 @@ class Graph:
     --------
     calculate_cycles() -> set[Cycle]
         Calculating all cycles/strongly connected components
+
+    get_root() -> str
+        Returns the name of the starting article
 
     get_nodes() -> set[Nodes]
         Returns the nodes as a set
@@ -45,19 +51,21 @@ class Graph:
     """
 
 
-    def __init__(self, nodes:set[Node], edges:set[Edge]) -> None:
+    def __init__(self, root:str, nodes:set[Node], edges:set[Edge]) -> None:
         """
         Sets up the graph object by converting the sets of nodes and edges into the maps and calculating information about the interconnectivity and saving it directly into the nodes
 
         Parameters:
         -----------
+        root: str
+            The Name of the article that is the root of the graph
         nodes : set[Node]
             The nodes of the graph
 
         edges : set[Edge]
             The edges of the graph
         """
-
+        self.__root:str = root
         self.__nodes:dict[int, Node] = { node.get_id() : node for node in nodes}
         self.__edges:dict[(int, int), Edge] = {(edge.get_start_id(), edge.get_end_id()) : edge for edge in edges}
         self.__extend_nodes()
@@ -85,7 +93,13 @@ class Graph:
             end.add_incoming(edge)
 
         return None
-    
+
+    def get_root(self) -> str:
+        """
+        Returns the name of the root-article
+        """
+        return self.__root
+
     def get_nodes(self) -> set[Node]:
         """
         Returns the nodes as a set
@@ -164,7 +178,6 @@ class Graph:
         """
         return self.__nodes.get(id)
 
-    
     def get_node_name(self, id:int) -> str | None:
         """
         Returns the name of the node which ID is id if it exists
