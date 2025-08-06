@@ -15,7 +15,6 @@ class FileHelper:
         Reads the file at file_name and returns the saved graph
     """
 
-
     def __init__(self, directory:str) -> None:
         """
         Sets up the object
@@ -39,7 +38,8 @@ class FileHelper:
         to_write = u""
         nodes = list(graph.get_nodes())
         node_count = len(nodes)
-        to_write += f"{node_count}\n"
+        root = graph.get_root()
+        to_write += f"{node_count};{root}\n"
 
         nodes.sort(key = lambda node : node.get_id())
 
@@ -81,7 +81,9 @@ class FileHelper:
         if file_content == None:
             return None
         
-        node_count = int(file_content[0])
+        first_line = file_content[0]
+        count, root = first_line.split(";")
+        node_count = int(count)
         node_lines = file_content[1:node_count + 1]
 
         nodes = self.__extract_nodes(node_lines)
@@ -90,7 +92,7 @@ class FileHelper:
         edge_lines = file_content[node_count + 1:len(file_content)]
         edges = self.__extract_edges(edge_lines, node_ids)
         
-        return Graph(nodes = nodes, edges = edges)
+        return Graph(root, nodes, edges)
 
     def __extract_nodes(self, node_lines:list[str]) -> list[Node]:
         """
