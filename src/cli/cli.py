@@ -38,6 +38,7 @@ class Parser:
                     continue
 
                 case "read":
+                    self.__read(options)
                     continue
 
                 case "save":
@@ -77,33 +78,35 @@ class Parser:
 
         print(exit_statement)
                     
-    def __parse_options(self, user_options:list[str], valid_options:dict[str, int]) -> tuple[list[list[str]], list[list[str]]]:
-        valid_user_options = []
-        invalid_user_options = []
+    def __parse_options(self, user_options:list[str], valid_options:dict[str, int]) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
+        valid_user_options = {}
+        invalid_user_options = {}
 
         options_positions = [idx for idx, user_option in enumerate(user_options) if user_option[0] == "-"]
         options_positions.append(len(user_options))
 
-        for idx in len(options_positions) - 1:
-
-            chunk = user_options[options_positions[idx]:options_positions[idx + 1]]
+        for idx in range(len(options_positions) - 1):
             
-            if chunk[0] not in valid_options.keys():
-                invalid_user_options.append(chunk)
+            current = options_positions[idx]
+            next = options_positions[idx + 1]
+
+            chunk = user_options[current:next]
+
+            option = chunk.pop(0)
+            arguments = chunk
+            
+            if option not in valid_options.keys():
+                invalid_user_options[option] = arguments
                 continue
                 
-            if len(chunk) != valid_options[chunk[0]]:
-                invalid_user_options.append(chunk)
+            if len(arguments) != valid_options[option]:
+                invalid_user_options[option] = arguments
                 continue
 
-            valid_user_options.append(chunk)
+            valid_user_options[option] = arguments
 
         return (valid_user_options, invalid_user_options)
         
-
-
-
-
     def __help(self) -> None:
         help_statement = '' \
         '----------------------------------------------------------------------\n' \
@@ -146,6 +149,20 @@ class Parser:
 
         return None
     
+    def __read(self, options:list[str]) -> None:
+        available_options = {"-h" : 0, "-v" : 0, "-f" : 1}
+        valid_user_options, invalid_user_options = self.__parse_options(options, available_options)
+
+
+        # Assumes -f is set
+
+        file_name = valid_user_options.get("-f")
+        read_graph = self.filehelper.read_graph_from_file(file_name)
+
+        self.graphs
+        return None
+    
+
 def main() -> int:
     return 0
 
