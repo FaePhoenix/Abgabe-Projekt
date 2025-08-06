@@ -23,7 +23,6 @@ class FileHelper:
         self.directory = directory
         return None
     
-
     def write_graph_to_file(self, graph:Graph, file_name:str) -> None:
         """
         Writes the given graph into a file with the name file_name in a text format
@@ -92,8 +91,6 @@ class FileHelper:
         edges = self.__extract_edges(edge_lines, node_ids)
         
         return Graph(nodes = nodes, edges = edges)
-
-
 
     def __extract_nodes(self, node_lines:list[str]) -> list[Node]:
         """
