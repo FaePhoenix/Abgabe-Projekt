@@ -1,10 +1,13 @@
 from graph.graph import Graph
+from filehelper import FileHelper
+import os
 
 
 class Parser:
     def __init__(self) -> None:
         self.running : bool = True
-        self.graphs: dict[str, Graph]
+        self.graphs: dict[str, Graph] = {}
+        self.filehelper : FileHelper = FileHelper(os.getcwd())
         return None
     
     def run(self) -> None:
@@ -55,7 +58,19 @@ class Parser:
                 case _:
                     self.__default(command)
             print('\n')
-                
+        saving_statement = '' \
+        '----------------------------------------\n' \
+        'Saving all active graphs before quitting'
+        print(saving_statement)
+        amount = len(self.graphs)
+        saved = 0
+        for name, graph in self.graphs.items():
+            self.filehelper.write_graph_to_file(graph, name)
+            print('Successfully saved graph' + name + '.')
+        
+            
+
+
         exit_statement = '' \
         '---------------------\n' \
         'Successfully exited.'
@@ -121,11 +136,13 @@ class Parser:
         return None
 
     def __view(self, options: list[str]) -> None:
-        available_options = ["-h", "-v"]
-        for option in options:
-            if option not in available_options:
-                out_statement = '' \
-                'The view command is used to list all currently active graphs. The available options include'
+        available_options = {"-h" : 0, "-v" : 0}
+        valid_user_options, invalid_user_options = self.__parse_options(options, available_options)
+        if len(invalid_user_options) > 0:
+            #do stuff
+            pass
+        if idk
+        
 
         return None
     

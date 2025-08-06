@@ -16,17 +16,17 @@ class FileHelper:
     """
 
 
-    def __init__(self) -> None:
+    def __init__(self, directory:str) -> None:
         """
         Sets up the object
         """
-
+        self.directory = directory
         return None
     
 
     def write_graph_to_file(self, graph:Graph, file_name:str) -> None:
         """
-        Writes the given graph into a file at file_name in a text format
+        Writes the given graph into a file with the name file_name in a text format
 
         Parameters:
         -----------
@@ -63,21 +63,22 @@ class FileHelper:
             to_write += f"{" ".join(map(str, row))}\n"
 
         to_write = to_write.rstrip("\n")
-        with open(file_name, "x", encoding="UTF8") as file:
+        full_file_name = self.directory + file_name
+        with open(full_file_name, "x", encoding="UTF8") as file:
             file.write(to_write)
         return None
     
     def read_graph_from_file(self, file_name:str) -> Graph | None:
         """
-        Reads the file at file_name and returns the saved graph
+        Reads the file named file_name in the current directory and returns the saved graph
 
         Parameters:
         -----------
         file_name : str
             The location to read
         """
-
-        file_content = self.__read_file(file_name = file_name)
+        full_file_name = self.directory + file_name
+        file_content = self.__read_file(full_file_name)
         if file_content == None:
             return None
         
