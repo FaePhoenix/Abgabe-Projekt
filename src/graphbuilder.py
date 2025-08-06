@@ -57,7 +57,7 @@ class GraphBuilder:
 
             self.__build_edges_from_links(next_queue_entry, article_depth, new_info, article_id)
 
-        network = Graph(nodes = list(self.__nodes.values()), edges = self.__edges)
+        network = Graph(root = start_name, nodes = list(self.__nodes.values()), edges = self.__edges)
 
         return network
 
