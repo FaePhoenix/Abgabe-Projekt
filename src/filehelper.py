@@ -22,7 +22,7 @@ class FileHelper:
         self.directory = directory
         return None
     
-    def write_graph_to_file(self, graph:Graph, file_name:str) -> None:
+    def write_graph_to_file(self, graph:Graph, file_name:str, verbose:bool) -> None:
         """
         Writes the given graph into a file with the name file_name in a text format
 
@@ -33,6 +33,9 @@ class FileHelper:
 
         file_name : str
             The location to save to
+        
+        verbose : bool
+            Should the action be logged verbosely
         """
 
         to_write = u""
@@ -40,11 +43,17 @@ class FileHelper:
         node_count = len(nodes)
         root = graph.get_root()
         to_write += f"{node_count};{root}\n"
-
+        
         nodes.sort(key = lambda node : node.get_id())
+
+        if verbose:
+            print(f"Sorted {node_count} nodes by id for edge-matrix")
 
         for node in nodes:
             to_write += f"{node.get_id()};{node.get_name()};{node.get_depth()};{u",".join(node.get_keywords())}\n"
+
+        if verbose:
+            print("Successfully generated node-text")
 
         connection_matrix = [[None for _ in range(node_count)] for _ in range(node_count)]
         
@@ -57,17 +66,31 @@ class FileHelper:
                     connection_matrix[row_idx][col_idx] = 1
                 else:
                     connection_matrix[row_idx][col_idx] = 0
+        
+        if verbose:
+            print("Successfully generated connection matrix")
 
         for row in connection_matrix:
             to_write += f"{" ".join(map(str, row))}\n"
+        
+        if verbose:
+            print("Successfully converted connection matrix into edge-text")
 
         to_write = to_write.rstrip("\n")
         full_file_name = self.directory + file_name
+
+        if verbose:
+            print("Successfully generated graph-text")
+
         with open(full_file_name, "x", encoding="UTF8") as file:
             file.write(to_write)
+
+        if verbose:
+            print("Done writing to file")
+
         return None
     
-    def read_graph_from_file(self, file_name:str) -> Graph | None:
+    def read_graph_from_file(self, file_name:str, verbose:bool) -> Graph | None:
         """
         Reads the file named file_name in the current directory and returns the saved graph
 
@@ -75,10 +98,18 @@ class FileHelper:
         -----------
         file_name : str
             The location to read
+        verbose : bool
+            Should the action be logged verbosely
         """
+
         full_file_name = self.directory + file_name
         file_content = self.__read_file(full_file_name)
+        
+        if verbose:
+            print(f"Reading file: {full_file_name}\nFound {len(file_content)} lines")
+
         if file_content == None:
+            print("File empty. Abort graph reading.")
             return None
         
         first_line = file_content[0]
@@ -86,12 +117,21 @@ class FileHelper:
         node_count = int(count)
         node_lines = file_content[1:node_count + 1]
 
+        if verbose:
+            print(f"Expecting {node_count} nodes for root: {root}")
+
         nodes = self.__extract_nodes(node_lines)
         node_ids = [node.get_id() for node in nodes]
+
+        if verbose:
+            print(f"Successfully read {len(node_ids)} Nodes")
 
         edge_lines = file_content[node_count + 1:len(file_content)]
         edges = self.__extract_edges(edge_lines, node_ids)
         
+        if verbose:
+            print(f"Successfully read {len(edges)} Edges")
+
         return Graph(root, nodes, edges)
 
     def __extract_nodes(self, node_lines:list[str]) -> list[Node]:
