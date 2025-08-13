@@ -34,6 +34,9 @@ class Graph:
     get_density() -> float
         Returns the density of the graph
 
+    get_node_count() -> int
+        Returns the amount of nodes in the graph
+
     get_neighbours(node_id : int) -> list[Node]
         Returns a list of all nodes that are directly connected to the node with the ID node_id
 
@@ -123,6 +126,12 @@ class Graph:
         edge_count = len(self.__edges)
         return edge_count / (node_count * (node_count - 1))
     
+    def get_node_count(self) -> int:
+        """
+        Returns the amount of nodes in the graph
+        """
+        return len(self.__nodes)
+
     def get_neighbours(self, node_id:int) -> list[Node]:
         """
         Returns all nodes that are directly connected to the node which ID is node_id
