@@ -1,5 +1,6 @@
 from graph.graph import Graph
 from filehelper import FileHelper
+from graphbuilder import GraphBuilder
 import os
 
 
@@ -46,6 +47,7 @@ class Parser:
                     continue
 
                 case "build":
+                    self.__build(options)
                     continue
 
                 case "circles":
@@ -63,15 +65,16 @@ class Parser:
         saving_statement = '' \
         '----------------------------------------\n' \
         'Saving all active graphs before quitting'
+
         print(saving_statement)
+
         amount = len(self.graphs)
         saved = 0
+
         for name, graph in self.graphs.items():
             self.filehelper.write_graph_to_file(graph, name)
-            print('Successfully saved graph' + name + '.')
-        
-            
-
+            saved += 1
+            print('Successfully saved graph' + name + f'. Done {(float(saved)/amount):.2%}')
 
         exit_statement = '' \
         '---------------------\n' \
@@ -88,10 +91,10 @@ class Parser:
 
         for idx in range(len(options_positions) - 1):
             
-            current = options_positions[idx]
-            next = options_positions[idx + 1]
+            current_pos = options_positions[idx]
+            next_pos = options_positions[idx + 1]
 
-            chunk = user_options[current:next]
+            chunk = user_options[current_pos:next_pos]
 
             option = chunk.pop(0)
             arguments = chunk
@@ -150,6 +153,7 @@ class Parser:
             ' -v : verbose output to get further information about the active graphs'
 
             print(help_statement)
+            return None
 
         verbose_option = "-v" in valid_user_options.keys()
         
@@ -170,7 +174,7 @@ class Parser:
         for name, graph in self.graphs.items():
             if verbose_option:
                 graph_line = f'{name}, Density: {graph.get_density}'
-                
+
             else:
                 graph_line = f'- {name}'
             
@@ -289,9 +293,89 @@ class Parser:
 
         return None
     
+    def __build(self, options:list[str]) -> None:
+        available_options = {"-h" : 0, "-v" : 0, "-s" : 1, "-d" : 1, "-r" : 1}
+        valid_user_options, invalid_user_options = self.__parse_options(options, available_options)
+
+        if "-v" in valid_user_options.keys():
+            help_statement = '' \
+            ''
+
+            print(help_statement)
+            return None
+        
+        root_given = "-r" in valid_user_options
+        if not root_given:
+            failure_statement = '' \
+            'No root for graph building given. Can\'t start building graph without a starting point.\n' \
+            'Aborting graph building.'
+
+            print(failure_statement)
+            return None
+        
+        graph_root = valid_user_options.get("-r")[0]
+
+        #Extract into func to set graph size
+        custom_size_used = "-s" in valid_user_options.keys()
+        if custom_size_used:
+            user_size_argument = valid_user_options.get("-s")[0]
+            valid_custom_size = user_size_argument.isdigit() and user_size_argument != "0"
+
+            if valid_custom_size:
+                graph_size = int(user_size_argument)
+            else:
+                fallback_statement = '' \
+                f'Given custom size \"{user_size_argument}\" is not a positive integer bigger than 0. Aborting graph building.'
+
+                print(fallback_statement)
+                return None
+        else:
+            graph_size = 500
+        #End func
+        
+        #Extract into func to set graph depth
+        custom_depth_used = "-d" in valid_user_options.keys()
+        if custom_depth_used:
+            user_depth_argument = valid_user_options.get("-d")[0]
+            valid_custom_depth = user_depth_argument.isdigit() and user_depth_argument != "0"
+            
+            if valid_custom_depth:
+                graph_depth = int(user_depth_argument)
+            else:
+                fallback_statement = '' \
+                f'Given custom depth \"{user_size_argument}\" is not a positive integer bigger than 0. Aborting graph building.'
+
+                print(fallback_statement)
+                return None
+        else:
+            graph_depth = 10
+        #End func
+
+        builder = GraphBuilder(graph_size, graph_depth)
+        
+        graph = builder.build_graph_from_article(graph_root)
+
+        if graph == None:
+            building_failed_statement = '' \
+            'Graph building failed. Please see above error messages for more information'
+
+            print(building_failed_statement)
+            return None
+        
+        graph_name = f"{graph_root}-{graph_size}"
+        self.graphs[graph_name] = graph
+
+        success_statement = '' \
+        'Successfully added graph which is now available for other commands using the name:\n' \
+        f'{graph_name}\n'
+
+        print(success_statement)
+        return None
+    
 
 def main() -> int:
     return 0
+
 
 if __name__ == "__main__":
     main()
