@@ -142,6 +142,10 @@ class Parser:
     def __view(self, options: list[str]) -> None:
         available_options = {"-h" : 0, "-v" : 0}
         valid_user_options, invalid_user_options = self.__parse_options(options, available_options)
+
+        if not self.__warn_options(invalid_user_options):
+            return None
+        
         if "-h" in valid_user_options.keys():
             help_statement = '' \
             'This command is used to view all active graphs that can be used in other commands.\n' \
@@ -206,6 +210,9 @@ class Parser:
             print(failure_statement)
             return None
 
+        if not self.__warn_options(invalid_user_options):
+            return None
+        
         verbose_option = "-v" in valid_user_options.keys()
 
         file_name = valid_user_options.get("-f")[0]
@@ -245,7 +252,7 @@ class Parser:
             'Available Options:\n' \
             ' -h : help option, to display further information. Disables functionality (Currently used)\n' \
             ' -v : verbose logging to get further information about the graph saving\n' \
-            '  -n [filename] : a custom file name for the graph textfile. Default is \"[rootname-size]\"'
+            ' -n [filename] : a custom file name for the graph textfile. Default is \"[rootname-size]\"'
 
             print(help_statement)
             return None
@@ -257,6 +264,9 @@ class Parser:
             'Please use \"-g [graph_name]\" to select a graph to save'
 
             print(failure_statement)
+            return None
+        
+        if not self.__warn_options(invalid_user_options):
             return None
         
         graph_name = valid_user_options.get("-g")
@@ -297,7 +307,14 @@ class Parser:
 
         if "-v" in valid_user_options.keys():
             help_statement = '' \
-            ''
+            'This command is used to build an active graph from the name of an article.\n' \
+            'Mandatory Options:\n' \
+            ' -r [articlename] : The name of the wikipedia article that you want to use as a root for the graph\n' \
+            'Available Options:\n' \
+            ' -h : help option, to display further information. Disables functionality (Currently used)\n' \
+            ' -v : verbose logging to get further information about the graph saving\n' \
+            ' -s [num] : the amount of articles to be included. (Default is 500)' \
+            ' -d [num] : the maximal depth or distance to the original article that should be included. (Default is 10)'
 
             print(help_statement)
             return None
@@ -311,6 +328,9 @@ class Parser:
             print(failure_statement)
             return None
         
+        if not self.__warn_options(invalid_user_options):
+            return None
+
         graph_root = valid_user_options.get("-r")[0]
 
         #Extract into func to set graph size
@@ -369,6 +389,30 @@ class Parser:
 
         print(success_statement)
         return None
+    
+    def __warn_options(self, invalid_user_options:dict[str, list[str]]) -> bool:
+        warning_statement = '' \
+        'Found invalid options:'
+
+        print(warning_statement)
+
+        for option, arguments in invalid_user_options.items():
+            option_line = f"\"{option}\""
+
+            if arguments:
+                option_line += " ".join(arguments)
+
+            print(option_line)
+
+        user_answer = input("Please select if you still want to continue with the command (Y/N):")
+
+        if user_answer.upper() != "Y":
+            print("Aborting command execution")
+            return False
+        
+        else:
+            print("Continuing command execution")
+            return True
     
 
 def main() -> int:
