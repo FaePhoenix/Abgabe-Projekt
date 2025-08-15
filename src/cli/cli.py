@@ -21,8 +21,8 @@ class Parser:
         print(intro_statement)
 
         while(self.running):
-
-            prompt = input("")
+            prompt = input('-------------------------------------------\n')
+            print('')
             if not prompt:
                 self.__default()
                 continue
@@ -36,19 +36,15 @@ class Parser:
                     
                 case "view":
                     self.__view(options)
-                    continue
 
                 case "read":
                     self.__read(options)
-                    continue
 
                 case "save":
                     self.__save(options)
-                    continue
 
                 case "build":
                     self.__build(options)
-                    continue
 
                 case "circles":
                     continue
@@ -61,7 +57,6 @@ class Parser:
             
                 case _:
                     self.__default(command)
-            print('\n')
         saving_statement = '' \
         '----------------------------------------\n' \
         'Saving all active graphs before quitting'
@@ -86,6 +81,9 @@ class Parser:
         valid_user_options = {}
         invalid_user_options = {}
 
+        if user_options == None or len(user_options) == 0:
+            return (valid_user_options, invalid_user_options)
+        
         options_positions = [idx for idx, user_option in enumerate(user_options) if user_option[0] == "-"]
         options_positions.append(len(user_options))
 
@@ -113,7 +111,6 @@ class Parser:
         
     def __help(self) -> None:
         help_statement = '' \
-        '----------------------------------------------------------------------\n' \
         'The is a command line interface created by Fae Körper for FMI-BI0058.\n' \
         'The project aims to collect and visualize information about wikipedia articles.\n' \
         'Each Command has an \'-h\' option to further specify use and available options.\n' \
@@ -133,11 +130,11 @@ class Parser:
     def __default(self, command:str = None) -> None:
         if command is None:
             default_statement = '' \
-            'Please enter any command. Refer to the help command for a list of available commands.'
+            'Please enter any command. Refer to the \"help\" command for a list of available commands.'
         else:
             default_statement = '' \
             f'Command \'{command}\' is not recognized,\n' \
-            'please refer to the help command for a list of available commands.'
+            'please refer to the \"help\" command for a list of available commands.'
 
         print(default_statement)
         return None
@@ -198,7 +195,8 @@ class Parser:
             print(help_statement)
             return None
 
-        if not "-f" in valid_user_options.keys():
+        file_name_given = "-f" in valid_user_options.keys()
+        if not file_name_given:
             failure_statement = '' \
             'Cannot read graph, cause of missing valid file name to read graph from.\n' \
             'Please use \"-f [filename]\" to select a file.\n' \
@@ -210,7 +208,7 @@ class Parser:
 
         verbose_option = "-v" in valid_user_options.keys()
 
-        file_name = valid_user_options.get("-f")
+        file_name = valid_user_options.get("-f")[0]
         read_graph = self.filehelper.read_graph_from_file(file_name, verbose_option) 
         
         if read_graph == None:
