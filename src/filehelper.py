@@ -105,13 +105,13 @@ class FileHelper:
         full_file_name = self.directory + file_name
         file_content = self.__read_file(full_file_name)
         
-        if verbose:
-            print(f"Reading file: {full_file_name}\nFound {len(file_content)} lines")
-
         if file_content == None:
             print("File empty. Abort graph reading.")
             return None
         
+        if verbose:
+            print(f"Reading file: {full_file_name}\nFound {len(file_content)} lines")
+
         first_line = file_content[0]
         count, root = first_line.split(";")
         node_count = int(count)
