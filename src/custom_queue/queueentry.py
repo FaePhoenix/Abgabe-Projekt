@@ -1,7 +1,7 @@
 import copy
 
 
-class NodeQueueEntry:
+class QueueEntry:
     """
     A Class to encapsulate the tuple that is an entry in the queue used to build the graph
 
