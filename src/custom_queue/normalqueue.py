@@ -2,7 +2,7 @@ import copy
 from custom_queue.queueentry import QueueEntry
 
 
-class PriorityQueue:
+class NormalQueue:
     """
     A class that is a queue of node candidates
 
@@ -48,7 +48,7 @@ class PriorityQueue:
 
     def get_next_entry(self) -> QueueEntry | None:
         """
-        Returns a queue entry with maximum degree, removes it from the __entries and adds it to __blacklist so it isn't explored again
+        Returns a queue entry, removes it from the __entries and adds it to __blacklist so it isn't explored again
         or returns None if the queue is empty
         """
 
@@ -135,9 +135,6 @@ class PriorityQueue:
         for link in creatable_links:
             new_entry = QueueEntry(name = link, origin_id = origin_id, depth = origin_depth + 1)
             self.__entries.append(new_entry)
-
-        self.__entries.sort(key = lambda entry : entry.get_degree(), reverse = True)
-
 
         return None
             

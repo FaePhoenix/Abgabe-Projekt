@@ -1,5 +1,5 @@
-from custom_queue.priorityqueue import NodeQueue
-from custom_queue.nodequeueentry import NodeQueueEntry
+from custom_queue.priorityqueue import PriorityQueue
+from custom_queue.queueentry import QueueEntry
 from fetch.sorter import Sorter
 from graph.graph import Graph
 from graph.node import Node
@@ -13,12 +13,12 @@ class GraphBuilder:
         self.__max_depth:int = max_depth
         self.__edges:list[Edge] = []
         self.__nodes:dict[str, Node] = {}
-        self.__queue:NodeQueue
+        self.__queue:PriorityQueue
         return None
     
     def build_graph_from_article(self, start_name:str) -> Graph | None:
         sorter = Sorter()
-        self.__queue = NodeQueue(starting_name = start_name)
+        self.__queue = PriorityQueue(starting_name = start_name)
 
         try:
             starting_info = sorter.get_content(start_name)
@@ -61,7 +61,7 @@ class GraphBuilder:
 
         return network
 
-    def __build_edges_from_links(self, next_queue_entry:NodeQueueEntry, article_depth:int, new_info:dict[str, Any], article_id:int) -> None:
+    def __build_edges_from_links(self, next_queue_entry:QueueEntry, article_depth:int, new_info:dict[str, Any], article_id:int) -> None:
         links = new_info.get("links")
 
         new_links = []
@@ -78,7 +78,7 @@ class GraphBuilder:
 
         return None
 
-    def __update_queue_from_links(self, next_queue_entry:NodeQueueEntry, article_depth:int, article_id:int, new_links:list[str]) -> None:
+    def __update_queue_from_links(self, next_queue_entry:QueueEntry, article_depth:int, article_id:int, new_links:list[str]) -> None:
         if next_queue_entry.get_depth() < self.__max_depth:
             self.__queue.add_new_entries(new_links, article_id, article_depth)
 
