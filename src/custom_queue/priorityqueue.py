@@ -1,8 +1,8 @@
 import copy
 from custom_queue.queueentry import QueueEntry
+from custom_queue.queue import WikiGraphQueue
 
-
-class PriorityQueue:
+class PriorityQueue(WikiGraphQueue):
     """
     A class that is a queue of node candidates
 
@@ -19,9 +19,6 @@ class PriorityQueue:
     --------
     get_next_entry() -> NodeQueueEntry
         Gives an entry of the queue and deletes it from the __entries
-
-    add_article_to_blacklist(blacklisted_article : str) -> None
-        Adds a given article name to the blacklist
 
     only_update_entries(new_links : list[str], origin_id : int, origin_depth : int) -> None
         Updates the already existing entries in __entries based if the are in new_links based on the origin_id and origin_depth
@@ -41,10 +38,9 @@ class PriorityQueue:
             the name of the article that is used as a start of the current graph the queue object belongs to
         """
 
-        self.__entries:list[QueueEntry] = []
-        self.__blacklist:list[str] = [starting_name]
+        super().__init__(starting_name)
         return None
-
+ 
 
     def get_next_entry(self) -> QueueEntry | None:
         """
@@ -55,28 +51,14 @@ class PriorityQueue:
         if len(self.__entries) == 0:
             return None
 
-        next_entry = copy.deepcopy(self.__entries[0])
-        self.__blacklist.append(next_entry.get_name())
-        self.__entries.pop(0)
+        self.__entries.sort(key = lambda entry : entry.get_degree(), reverse = True)
+
+        next_entry = self.__entries.pop(0)
+        self.__blacklist.add(next_entry.get_name())
 
         return next_entry
     
-    def add_article_to_blacklist(self, blacklisted_article:str) -> None:
-        """
-        Adds the given article name to __blacklist
-
-        Parameters:
-        -----------
-        blacklisted_article : str
-            The name of the article to be blacklisted
-
-        """
-
-        if blacklisted_article not in self.__blacklist:
-            self.__blacklist.append(blacklisted_article)
-
-        return None
-    
+    #TODO REDO
     def only_update_entries(self, new_links:list[str], origin_id:int, origin_depth:int) -> None:
         """
         Updates existing queue entries by adding the given origin id to their list of discovery sources, updating the minimum discovery depth if applicable
@@ -102,7 +84,8 @@ class PriorityQueue:
             self.__update_entry(link = link, origin_id = origin_id, origin_depth = origin_depth)
         
         return None
-
+    
+    #TODO REDO
     def add_new_entries(self, new_links:list[str], origin_id:int, origin_depth:int) -> None:
         """
         Adds the article names to the queue or updates their entries if they are already present
@@ -121,7 +104,6 @@ class PriorityQueue:
 
         filtered_links = [link for link in new_links if link not in self.__blacklist]
         known_entries:list[str] = [entry.get_name() for entry in self.__entries]
-
         updatable_links = [link for link in filtered_links if link in known_entries]
         
         #Duplicated Code to only_update_entries()
@@ -136,11 +118,9 @@ class PriorityQueue:
             new_entry = QueueEntry(name = link, origin_id = origin_id, depth = origin_depth + 1)
             self.__entries.append(new_entry)
 
-        self.__entries.sort(key = lambda entry : entry.get_degree(), reverse = True)
-
-
         return None
-            
+
+    #TODO REDO      
     def __update_entry(self, link:str, origin_id:int, origin_depth:int) -> None:
         """
         Updates the entry of the given article name given the source ID and depth
