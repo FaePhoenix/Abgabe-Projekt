@@ -2,7 +2,14 @@ from abc import ABC, abstractmethod
 from custom_queue.queueentry import QueueEntry
 
 class WikiGraphQueue(ABC):
+    """
+    
+    only_update_entries(new_links : list[str], origin_id : int, origin_depth : int) -> None
+        Updates the already existing entries in __entries based if the are in new_links based on the origin_id and origin_depth
 
+    add_new_entries(new_links : list[str], origin_id : int, origin_depth : int) -> None:
+        Updates known articles and creates new queue entries for unknown article names in new_links based on the origin_id and origin_depth
+    """
     def __init__(self, starting_name:str) -> None:
         """
         Sets up the __entries and __blacklist
