@@ -1,7 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from graph.edge import Edge
+from graph.edge import Edge
 
 class Node:
     """
