@@ -3,12 +3,31 @@ from datastructures.custom_queue.queueentry import QueueEntry
 
 class WikiGraphQueue(ABC):
     """
+    An abstract Class to group accumulate functionality
+
+    Attributes:
+    -----------
+    __entries : list[QueueEntry]
+        The list of queue entries
+
+    __blacklist : set[str]
+        The names of blacklisted entries
+
+    Methods:
+    --------
+    get_next_entry() -> QueueEntry | None:
+        Returns the next entry, remove it from the queue and adds the name to the blacklist so it isn't queued again
     
+    add_article_to_blacklist(blacklisted_article : str) -> None
+        Add given name to the blacklist
+
     only_update_entries(new_links : list[str], origin_id : int, origin_depth : int) -> None
         Updates the already existing entries in __entries based if the are in new_links based on the origin_id and origin_depth
 
     add_new_entries(new_links : list[str], origin_id : int, origin_depth : int) -> None:
         Updates known articles and creates new queue entries for unknown article names in new_links based on the origin_id and origin_depth
+    
+    
     """
     def __init__(self, starting_name:str) -> None:
         """
@@ -65,7 +84,6 @@ class WikiGraphQueue(ABC):
             Depth of the node that is a source of the article names in new_links
         """
 
-        #move filtering to other function to avoid duplicated?
         filtered_links = [link for link in new_links if link not in self.__blacklist]
         known_entries = [entry.get_name() for entry in self.__entries]
         updatable_links = [link for link in filtered_links if link in known_entries]
@@ -90,7 +108,6 @@ class WikiGraphQueue(ABC):
             Depth of the node that is a source of the article names in new_links
         """
 
-        #move filtering to other function to avoid duplicated?
         filtered_links = [link for link in new_links if link not in self.__blacklist]
         known_entries = [entry.get_name() for entry in self.__entries]
         updatable_links = [link for link in filtered_links if link in known_entries]
@@ -115,4 +132,10 @@ class WikiGraphQueue(ABC):
                 links.remove(name)
                 entry.add_origin(origin_id, origin_depth)
         return None
-    
+
+def main() -> int:
+    print("Calling main in queue")
+    return 0
+
+if __name__ == "__main__":
+    main()
