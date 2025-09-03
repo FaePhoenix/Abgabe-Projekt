@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from custom_queue.queueentry import QueueEntry
+from datastructures.custom_queue.queueentry import QueueEntry
 
 class WikiGraphQueue(ABC):
     """

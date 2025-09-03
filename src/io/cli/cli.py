@@ -1,6 +1,6 @@
-from graph.graph import Graph
-from filehelper import FileHelper
-from graphbuilder import GraphBuilder
+from datastructures.graph.graph import Graph
+from io.filehelper import FileHelper
+from logic.graphbuilder import GraphBuilder
 import os
 
 
@@ -24,7 +24,7 @@ class Parser:
             prompt = input('-------------------------------------------\n')
             print('')
             if not prompt:
-                self.__default()
+                self.__default(None)
                 continue
             fragments = prompt.split(" ")
             command = fragments[0]
@@ -67,7 +67,7 @@ class Parser:
         saved = 0
 
         for name, graph in self.graphs.items():
-            self.filehelper.write_graph_to_file(graph, name)
+            self.filehelper.write_graph_to_file(graph, name, False)
             saved += 1
             print('Successfully saved graph' + name + f'. Done {(float(saved)/amount):.2%}')
 
@@ -77,7 +77,7 @@ class Parser:
 
         print(exit_statement)
                     
-    def __parse_options(self, user_options:list[str], valid_options:dict[str, int]) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
+    def __parse_options(self, user_options:list[str]|None, valid_options:dict[str, int]) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
         valid_user_options = {}
         invalid_user_options = {}
 
@@ -127,7 +127,7 @@ class Parser:
         print(help_statement)
         return None
             
-    def __default(self, command:str = None) -> None:
+    def __default(self, command:str | None) -> None:
         if command is None:
             default_statement = '' \
             'Please enter any command. Refer to the \"help\" command for a list of available commands.'
@@ -139,7 +139,7 @@ class Parser:
         print(default_statement)
         return None
 
-    def __view(self, options: list[str]) -> None:
+    def __view(self, options:list[str]|None) -> None:
         available_options = {"-h" : 0, "-v" : 0}
         valid_user_options, invalid_user_options = self.__parse_options(options, available_options)
 
@@ -183,7 +183,7 @@ class Parser:
             
         return None
     
-    def __read(self, options:list[str]) -> None:
+    def __read(self, options:list[str]|None) -> None:
         available_options = {"-h" : 0, "-v" : 0, "-f" : 1}
         valid_user_options, invalid_user_options = self.__parse_options(options, available_options)
 
@@ -215,7 +215,10 @@ class Parser:
         
         verbose_option = "-v" in valid_user_options.keys()
 
-        file_name = valid_user_options.get("-f")[0]
+        filename_option = valid_user_options.get("-f")
+        assert filename_option
+        file_name = filename_option[0]
+
         read_graph = self.filehelper.read_graph_from_file(file_name, verbose_option) 
         
         if read_graph == None:
@@ -240,7 +243,7 @@ class Parser:
         print(success_statement)
         return None
     
-    def __save(self, options:list[str]) -> None:
+    def __save(self, options:list[str]|None) -> None:
         available_options = {"-h" : 0, "-v" : 0, "-g" : 1, "-n" : 1}
         valid_user_options, invalid_user_options = self.__parse_options(options, available_options)
 
@@ -301,7 +304,7 @@ class Parser:
 
         return None
     
-    def __build(self, options:list[str]) -> None:
+    def __build(self, options:list[str]|None) -> None:
         available_options = {"-h" : 0, "-v" : 0, "-s" : 1, "-d" : 1, "-r" : 1}
         valid_user_options, invalid_user_options = self.__parse_options(options, available_options)
 
@@ -331,19 +334,24 @@ class Parser:
         if not self.__warn_options(invalid_user_options):
             return None
 
-        graph_root = valid_user_options.get("-r")[0]
+        graph_root_option = valid_user_options.get("-r")
+        assert graph_root_option
+        graph_root = graph_root_option[0]
 
         #Extract into func to set graph size
         custom_size_used = "-s" in valid_user_options.keys()
         if custom_size_used:
-            user_size_argument = valid_user_options.get("-s")[0]
-            valid_custom_size = user_size_argument.isdigit() and user_size_argument != "0"
+            user_size_option = valid_user_options.get("-s")
+            assert user_size_option
+            user_size = user_size_option[0]
+
+            valid_custom_size = user_size.isdigit() and user_size != "0"
 
             if valid_custom_size:
-                graph_size = int(user_size_argument)
+                graph_size = int(user_size)
             else:
                 fallback_statement = '' \
-                f'Given custom size \"{user_size_argument}\" is not a positive integer bigger than 0. Aborting graph building.'
+                f'Given custom size \"{user_size}\" is not a positive integer bigger than 0. Aborting graph building.'
 
                 print(fallback_statement)
                 return None
@@ -354,14 +362,16 @@ class Parser:
         #Extract into func to set graph depth
         custom_depth_used = "-d" in valid_user_options.keys()
         if custom_depth_used:
-            user_depth_argument = valid_user_options.get("-d")[0]
-            valid_custom_depth = user_depth_argument.isdigit() and user_depth_argument != "0"
+            user_depth_option = valid_user_options.get("-d")
+            assert user_depth_option
+            user_depth = user_depth_option[0]
+            valid_custom_depth = user_depth.isdigit() and user_depth != "0"
             
             if valid_custom_depth:
-                graph_depth = int(user_depth_argument)
+                graph_depth = int(user_depth)
             else:
                 fallback_statement = '' \
-                f'Given custom depth \"{user_size_argument}\" is not a positive integer bigger than 0. Aborting graph building.'
+                f'Given custom depth \"{user_depth}\" is not a positive integer bigger than 0. Aborting graph building.'
 
                 print(fallback_statement)
                 return None

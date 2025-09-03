@@ -1,4 +1,4 @@
-from fetch.requester import Requester
+from logic.fetch.requester import Requester
 from collections import Counter
 from typing import Any
 
@@ -36,7 +36,7 @@ class Sorter:
         response = requester.request_content(article_name = name)
         return self.__sort_wiki_json(response_json = response)
 
-    def __sort_wiki_json(self, response_json:dict) -> dict:
+    def __sort_wiki_json(self, response_json:dict) -> dict[str, Any]:
         """
         Sorts the json content into a new dict
 
@@ -47,17 +47,32 @@ class Sorter:
         """
 
         raw = response_json.get("parse")
-        if raw == None:
-            print(f"Gewaltiges Problem:\n{response_json}")
-        sorted_entries = {}
+        assert raw
+        assert isinstance(raw, dict)
+        sorted_entries:dict[str, Any] = {}
 
-        sorted_entries["name"] = raw.get("title")
-        sorted_entries["id"] = raw.get("pageid")
-        raw_text = raw.get("text").get("*")
-        sorted_entries["keywords"] = self.__find_keywords(text = raw_text)
+        title = raw.get("title")
+        assert title
+        assert isinstance(title, str)
+        sorted_entries["name"] = title
 
-        links_wrapped = raw.get("links")
-        sorted_entries["links"] = self.__unwrap_links(raw_links = links_wrapped)
+        page_id = raw.get("pageid")
+        assert page_id
+        assert isinstance(page_id, int) #TODO may be str? figure out
+        sorted_entries["id"] = page_id
+
+        wrapped_text = raw.get("text")
+        assert wrapped_text
+        assert isinstance(wrapped_text, dict)
+        text = wrapped_text.get("*")
+        assert text
+        assert isinstance(text, str)
+        sorted_entries["keywords"] = self.__find_keywords(text)
+
+        wrapped_links = raw.get("links")
+        assert wrapped_links
+        assert isinstance(wrapped_links, list) # TODO better test type?
+        sorted_entries["links"] = self.__unwrap_links(wrapped_links)
 
         return sorted_entries
     
@@ -76,6 +91,8 @@ class Sorter:
             if entry.get("ns") != 0:
                 continue
             raw_link = entry.get("*")
+            assert raw_link
+            assert isinstance(raw_link, str) # TODO CHECK if correct type
             converted_link = raw_link.replace(" ", "_")
             unwrapped_links.append(converted_link)
         return unwrapped_links

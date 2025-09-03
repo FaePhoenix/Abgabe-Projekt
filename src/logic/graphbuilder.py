@@ -1,9 +1,9 @@
-from custom_queue.priorityqueue import PriorityQueue
-from custom_queue.queueentry import QueueEntry
-from fetch.sorter import Sorter
-from graph.graph import Graph
-from graph.node import Node
-from graph.edge import Edge
+from datastructures.custom_queue.priorityqueue import PriorityQueue
+from datastructures.custom_queue.queueentry import QueueEntry
+from logic.fetch.sorter import Sorter
+from datastructures.graph.graph import Graph
+from datastructures.graph.node import Node
+from datastructures.graph.edge import Edge
 from typing import Any
 
 

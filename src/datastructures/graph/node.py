@@ -1,5 +1,5 @@
 from __future__ import annotations
-from graph.edge import Edge
+from datastructures.graph.edge import Edge
 
 class Node:
     """
@@ -76,8 +76,8 @@ class Node:
         self.__name:str = name
         self.__keywords:list[str] = keywords
         self.__depth:int = depth
-        self.__in:dict[(int, int), Edge] = {}
-        self.__out:dict[(int, int), Edge] = {}
+        self.__in:dict[tuple[int, int], Edge] = {}
+        self.__out:dict[tuple[int, int], Edge] = {}
         return None
 
     def __hash__(self) -> int:

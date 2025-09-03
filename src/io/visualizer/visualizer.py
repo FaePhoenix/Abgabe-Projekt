@@ -1,8 +1,9 @@
-from graphbuilder import GraphBuilder
-from filehelper import FileHelper
+from logic.graphbuilder import GraphBuilder
+from io.filehelper import FileHelper
+from datastructures.graph.graph import Graph
 import networkx as nx
 import matplotlib.pyplot as plt
-from graph.graph import Graph
+
 
 class Visualizer:
     def __init__(self, ) -> None:
@@ -26,7 +27,7 @@ class Visualizer:
         fig = plt.figure(1, figsize=image_size, dpi=resolution)
         nx.draw_kamada_kawai(drawn_graph, with_labels=labled, node_size=4_000, node_color="skyblue", linewidths=1, arrowsize=20, width=1, font_size=8, edge_color="lightgrey")
         
-        filename = graph_ot_visualize.get_origin() + "_" + str(len(graph_ot_visualize.get_nodes())) + ".png"
+        filename = graph_ot_visualize.get_root() + "_" + str(len(graph_ot_visualize.get_nodes())) + ".png"
         plt.savefig(save_location + filename)
 
         return None

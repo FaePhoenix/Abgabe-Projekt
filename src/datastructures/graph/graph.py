@@ -1,6 +1,6 @@
-from graph.node import Node
-from graph.edge import Edge
-from cycles.cycle import Cycle
+from datastructures.graph.node import Node
+from datastructures.graph.edge import Edge
+from datastructures.cycles.cycle import Cycle
 
 class Graph:
     """
@@ -70,7 +70,7 @@ class Graph:
         """
         self.__root:str = root
         self.__nodes:dict[int, Node] = { node.get_id() : node for node in nodes}
-        self.__edges:dict[(int, int), Edge] = {(edge.get_start_id(), edge.get_end_id()) : edge for edge in edges}
+        self.__edges:dict[tuple[int, int], Edge] = {(edge.get_start_id(), edge.get_end_id()) : edge for edge in edges}
         self.__extend_nodes()
         return None
     
@@ -90,9 +90,13 @@ class Graph:
         for edge in self.__edges.values():
             start_id = edge.get_start_id()
             end_id = edge.get_end_id()
+
             start = self.get_node_from_id(start_id)
+            assert isinstance(start, Node)
             start.add_outgoing(edge)
+
             end = self.get_node_from_id(end_id)
+            assert isinstance(end, Node)
             end.add_incoming(edge)
 
         return None
@@ -132,7 +136,7 @@ class Graph:
         """
         return len(self.__nodes)
 
-    def get_neighbours(self, node_id:int) -> list[Node]:
+    def get_neighbours(self, node_id:int) -> list[Node | None]:
         """
         Returns all nodes that are directly connected to the node which ID is node_id
 
@@ -148,7 +152,7 @@ class Graph:
 
         return [self.__nodes.get(neighbour_id) for neighbour_id in neighbour_ids]
     
-    def get_node_with_highest_in(self) -> Node:
+    def get_node_with_highest_in(self) -> Node | None:
         """
         Returns the node with the highest amount of incoming edges
         """
@@ -162,7 +166,7 @@ class Graph:
                 max_id = node.get_id()
         return self.__nodes.get(max_id)
     
-    def get_node_with_highest_out(self) -> Node:
+    def get_node_with_highest_out(self) -> Node | None:
         """
         Returns the node with the highest amount of outgoing edges
         """
@@ -176,7 +180,7 @@ class Graph:
                 max_id = node.get_id()
         return self.__nodes.get(max_id)
     
-    def get_node_from_id(self, id:int) -> Node:
+    def get_node_from_id(self, id:int) -> Node | None:
         """
         Returns the node which ID is id
 
@@ -197,10 +201,11 @@ class Graph:
             The id of the node which name is being looked for
         """
         
-        try:
-            node = self.get_node_from_id(id)
-        except Exception:
+        node = self.get_node_from_id(id)
+
+        if not node:
             return None
+        
         return node.get_name()
 
 

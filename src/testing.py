@@ -1,12 +1,17 @@
-from graphbuilder import GraphBuilder
-from filehelper import FileHelper
-from cycles.tarjan_calculator import TarjanCalculator
+from logic.fetch.sorter import Sorter
+from io.filehelper import FileHelper
+from datastructures.cycles.tarjan_calculator import TarjanCalculator
+
 
 def main() -> int:
     #Just used for testing out new components and how they work together with old components
-    py_testing()
+    sorter_types_testing()
     return 0
 
+def sorter_types_testing() -> None:
+    sorter = Sorter()
+    sorter.get_content("Licht")
+    return None
 
 def py_testing() -> None:
     links = ["a", "b", "c", "d"]
@@ -16,8 +21,6 @@ def py_testing() -> None:
         print(f"Found {name}")
 
     return None
-
-
 
 def cycle_testing() -> None:
     helper = FileHelper("")

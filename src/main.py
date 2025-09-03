@@ -1,4 +1,4 @@
-from cli.cli import Parser
+from io.cli.cli import Parser
 
 def main() -> int:
     parser = Parser()

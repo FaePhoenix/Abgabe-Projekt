@@ -1,5 +1,5 @@
 import pyvis.network as pynet
-from graphbuilder import GraphBuilder
+from logic.graphbuilder import GraphBuilder
 
 
 class FancyVisualizer:

@@ -1,5 +1,5 @@
-from custom_queue.queueentry import QueueEntry
-from custom_queue.queue import WikiGraphQueue
+from datastructures.custom_queue.queueentry import QueueEntry
+from datastructures.custom_queue.queue import WikiGraphQueue
 
 class PriorityQueue(WikiGraphQueue):
     """

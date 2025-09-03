@@ -1,6 +1,6 @@
-from graph.graph import Graph
-from graph.node import Node
-from graph.edge import Edge
+from datastructures.graph.graph import Graph
+from datastructures.graph.node import Node
+from datastructures.graph.edge import Edge
 
 class FileHelper:
     """
@@ -120,7 +120,7 @@ class FileHelper:
         if verbose:
             print(f"Expecting {node_count} nodes for root: {root}")
 
-        nodes = self.__extract_nodes(node_lines)
+        nodes = set(self.__extract_nodes(node_lines))
         node_ids = [node.get_id() for node in nodes]
 
         if verbose:
