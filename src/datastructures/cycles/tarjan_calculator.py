@@ -1,7 +1,7 @@
-from cycles.cycle import Cycle
-from cycles.tarjan_graph import TarjanGraph
-from cycles.tarjan_node import TarjanNode
-from graph.graph import Graph
+from datastructures.cycles.cycle import Cycle
+from datastructures.cycles.tarjan_graph import TarjanGraph
+from datastructures.cycles.tarjan_node import TarjanNode
+from datastructures.graph.graph import Graph
 
 
 class TarjanCalculator:

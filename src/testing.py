@@ -1,5 +1,5 @@
 from logic.fetch.sorter import Sorter
-from io.filehelper import FileHelper
+from custom_io.filehelper import FileHelper
 from datastructures.cycles.tarjan_calculator import TarjanCalculator
 
 

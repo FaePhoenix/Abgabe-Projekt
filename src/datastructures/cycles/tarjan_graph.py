@@ -1,4 +1,4 @@
-from cycles.tarjan_node import TarjanNode
+from datastructures.cycles.tarjan_node import TarjanNode
 
 class TarjanGraph:
     """

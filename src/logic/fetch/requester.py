@@ -43,10 +43,13 @@ class Requester:
             The name of the article
         """
 
+        user_agent = "WikiGraphUniProject/0.1 (fae.koerper@uni-jena.de) bot"
+        headers = {'User-Agent' : user_agent}
+
         wiki_api_domain = "https://de.wikipedia.org/w/api.php?action=parse&format=json&page="
         full_link = wiki_api_domain + article_name
 
-        response = requests.get(full_link)
+        response = requests.get(url = full_link, headers = headers)
 
         response_code = response.status_code
         assert response_code == requests.codes.ok, f"Status code is {response_code} not 200"

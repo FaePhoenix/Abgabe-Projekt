@@ -58,7 +58,7 @@ class Sorter:
 
         page_id = raw.get("pageid")
         assert page_id
-        assert isinstance(page_id, int) #TODO may be str? figure out
+        assert isinstance(page_id, int)
         sorted_entries["id"] = page_id
 
         wrapped_text = raw.get("text")
@@ -71,7 +71,7 @@ class Sorter:
 
         wrapped_links = raw.get("links")
         assert wrapped_links
-        assert isinstance(wrapped_links, list) # TODO better test type?
+        assert isinstance(wrapped_links, list) 
         sorted_entries["links"] = self.__unwrap_links(wrapped_links)
 
         return sorted_entries
@@ -92,7 +92,7 @@ class Sorter:
                 continue
             raw_link = entry.get("*")
             assert raw_link
-            assert isinstance(raw_link, str) # TODO CHECK if correct type
+            assert isinstance(raw_link, str)
             converted_link = raw_link.replace(" ", "_")
             unwrapped_links.append(converted_link)
         return unwrapped_links

@@ -1,5 +1,5 @@
 from datastructures.graph.graph import Graph
-from io.filehelper import FileHelper
+from custom_io.filehelper import FileHelper
 from logic.graphbuilder import GraphBuilder
 import os
 

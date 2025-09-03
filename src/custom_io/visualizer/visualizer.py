@@ -1,5 +1,5 @@
 from logic.graphbuilder import GraphBuilder
-from io.filehelper import FileHelper
+from custom_io.filehelper import FileHelper
 from datastructures.graph.graph import Graph
 import networkx as nx
 import matplotlib.pyplot as plt
