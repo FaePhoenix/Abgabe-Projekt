@@ -67,7 +67,7 @@ class WikiGraphQueue(ABC):
 
         return None
 
-    def only_update_entries(self, new_links:list[str], origin_id:int, origin_depth:int) -> None:
+    def only_update_entries(self, new_links:list[str], origin_id:int, origin_depth:int, verbose:bool) -> None:
         """
         Updates existing queue entries by adding the given origin id
         to their list of discovery sources and updating the minimum discovery depth if applicable
@@ -82,17 +82,26 @@ class WikiGraphQueue(ABC):
 
         origin_depth : int
             Depth of the node that is a source of the article names in new_links
+        
+        verbose : bool
+            Should the execution be verbose
         """
 
         filtered_links = [link for link in new_links if link not in self.__blacklist]
         known_entries = [entry.get_name() for entry in self.__entries]
         updatable_links = [link for link in filtered_links if link in known_entries]
 
+        if verbose:
+            report_statement = '' \
+            f'Found {len(updatable_links)} updates to existing queue entries'
+
+            print(report_statement)
+                    
         self.__update_entries(updatable_links, origin_id, origin_depth)
         
         return None
   
-    def add_new_entries(self, new_links:list[str], origin_id:int, origin_depth:int) -> None:
+    def add_new_entries(self, new_links:list[str], origin_id:int, origin_depth:int, verbose:bool) -> None:
         """
         Adds the article names to the queue or updates their entries if they are already present
 
@@ -106,15 +115,31 @@ class WikiGraphQueue(ABC):
         
         origin_depth : int
             Depth of the node that is a source of the article names in new_links
+
+        verbose : bool
+            Should the execution be verbose
         """
 
         filtered_links = [link for link in new_links if link not in self.__blacklist]
         known_entries = [entry.get_name() for entry in self.__entries]
         updatable_links = [link for link in filtered_links if link in known_entries]
         
+        if verbose:
+            report_statement = '' \
+            f'Found {len(updatable_links)} updates to existing queue entries'
+
+            print(report_statement)
+
         self.__update_entries(updatable_links, origin_id, origin_depth)
 
         creatable_links = [link for link in filtered_links if link not in known_entries]
+
+        if verbose:
+            report_statement = '' \
+            f'Found {len(creatable_links)} links to unknown articles. Creating new queue entries'
+
+            print(report_statement)
+
         self.__add_entries(creatable_links, origin_id, origin_depth)
 
         return None
@@ -131,6 +156,9 @@ class WikiGraphQueue(ABC):
             if (name := entry.get_name()) in links:
                 links.remove(name)
                 entry.add_origin(origin_id, origin_depth)
+
+            if not links:
+                break
         return None
 
 def main() -> int:

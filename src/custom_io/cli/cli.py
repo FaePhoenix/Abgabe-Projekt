@@ -272,7 +272,9 @@ class Parser:
         if not self.__warn_options(invalid_user_options):
             return None
         
-        graph_name = valid_user_options.get("-g")
+        wrapped_graph_name = valid_user_options.get("-g")
+        assert wrapped_graph_name
+        graph_name = wrapped_graph_name[0]
 
         graph_exists = graph_name in self.graphs.keys()
         if not graph_exists:
@@ -285,16 +287,20 @@ class Parser:
             return None
 
         graph_to_save = self.graphs.get(graph_name)
+        assert graph_to_save
 
-        verbose_option = "-v" in valid_user_options
+        verbose = "-v" in valid_user_options
         custom_file_name = "-n" in valid_user_options
 
         if custom_file_name:
-            file_name = valid_user_options.get("-n")
+            wrapped_file_name = valid_user_options.get("-n")
+            assert wrapped_file_name
+            file_name = wrapped_file_name[0]
         else:
             file_name = f"{graph_name}.txt"
+        
         try:
-            self.filehelper.write_graph_to_file(graph_to_save, file_name, verbose_option)
+            self.filehelper.write_graph_to_file(graph_to_save, file_name, verbose)
         except Exception as e:
             failure_statement = '' \
             'Saving graph to file failed.\n' \
@@ -305,10 +311,10 @@ class Parser:
         return None
     
     def __build(self, options:list[str]|None) -> None:
-        available_options = {"-h" : 0, "-v" : 0, "-s" : 1, "-d" : 1, "-r" : 1}
+        available_options = {"-h" : 0, "-v" : 0, "-s" : 1, "-d" : 1, "-r" : 1, "q" : 1}
         valid_user_options, invalid_user_options = self.__parse_options(options, available_options)
 
-        if "-v" in valid_user_options.keys():
+        if "-h" in valid_user_options.keys():
             help_statement = '' \
             'This command is used to build an active graph from the name of an article.\n' \
             'Mandatory Options:\n' \
@@ -322,7 +328,7 @@ class Parser:
             print(help_statement)
             return None
         
-        root_given = "-r" in valid_user_options
+        root_given = "-r" in valid_user_options.keys()
         if not root_given:
             failure_statement = '' \
             'No root for graph building given. Can\'t start building graph without a starting point.\n' \
@@ -345,10 +351,48 @@ class Parser:
         graph_depth = self.__get_graph_depth(valid_user_options)
         if graph_depth == -1:
             return None
+        
+        queue_type_given = "-q" in valid_user_options.keys()
+        if not queue_type_given:
+            failure_statement = '' \
+            'No queue type given. Can\'t start building graph without a queue type.\n' \
+            'Aborting graph building.'
+
+            print(failure_statement)
+            return None
+        
+        queue_type_wrapped = valid_user_options.get("-q")
+        assert queue_type_wrapped
+        queue_type = queue_type_wrapped[0]
+
+        if queue_type not in ["n", "p"]:
+            failure_statement = '' \
+            f'Given queue type \"{queue_type}\" is not in the supported types:\n' \
+            '\"n\": normal queue\n' \
+            '\"p\": priority queue\n' \
+            'Aborting graphbuilding'
+
+            print(failure_statement)
+            return None
+
+        verbose = "-v" in valid_user_options.keys()
+
+        if verbose:
+            arguments_statement = '' \
+            'Starting graph building:\n' \
+            f'Root: {graph_root}\n' \
+            f'Max graph size: {graph_size}\n' \
+            f'Max graph depth: {graph_depth}\n' \
+            'Queue type: '
+            
+            queue_type_name = 'normal queue' if queue_type == "n" else 'priority queue'
+            arguments_statement += queue_type_name
+
+            print(arguments_statement)
 
         builder = GraphBuilder(graph_size, graph_depth)
         
-        graph = builder.build_graph_from_article(graph_root)
+        graph = builder.build_graph_from_article(graph_root, queue_type, verbose)
 
         if graph == None:
             building_failed_statement = '' \

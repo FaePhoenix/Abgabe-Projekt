@@ -20,7 +20,7 @@ class Requester:
         return None
     
 
-    def request_content(self, article_name:str) -> dict:
+    def request_content(self, article_name:str) -> dict | None:
         """
         Fetches the article named articlename if it exisits and returns it's json content
 
@@ -31,9 +31,13 @@ class Requester:
         """
 
         raw_response = self.__get_wikiapi_response(article_name)
+
+        if not raw_response:
+            return None
+        
         return self.__get_content_from_response(raw_response)
 
-    def __get_wikiapi_response(self, article_name:str) -> requests.Response:
+    def __get_wikiapi_response(self, article_name:str) -> requests.Response | None:
         """
         Requests the json content of a wikipage and asserts that it exists
 
@@ -52,7 +56,12 @@ class Requester:
         response = requests.get(url = full_link, headers = headers)
 
         response_code = response.status_code
-        assert response_code == requests.codes.ok, f"Status code is {response_code} not 200"
+        if response_code != 200:
+            request_failure_statement = '' \
+            f'Status code is {response_code} not 200'
+
+            print(request_failure_statement)
+            return None
 
         return response
 

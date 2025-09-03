@@ -15,14 +15,10 @@ class Sorter:
 
 
     def __init__(self) -> None:
-        """
-        Sets up the object
-        """
-
         return None
 
     
-    def get_content(self, name:str) -> dict[str, Any]:
+    def get_content(self, name:str, verbose:bool) -> dict[str, Any] | None:
         """
         Requests the article named name and sorts the json content into a more useful format
 
@@ -33,18 +29,20 @@ class Sorter:
         """
 
         requester = Requester()
-        response = requester.request_content(article_name = name)
-        return self.__sort_wiki_json(response_json = response)
+        response = requester.request_content(name)
 
-    def __sort_wiki_json(self, response_json:dict) -> dict[str, Any]:
-        """
-        Sorts the json content into a new dict
+        if not response:
+            return None
+        
+        if verbose:
+            report_statement = '' \
+            'Request was successfull, beginning sorting of response'
 
-        Parameters:
-        -----------
-        response_json : dict
-            The response json of the wiki api
-        """
+            print(report_statement)
+
+        return self.__sort_wiki_json(response, verbose)
+
+    def __sort_wiki_json(self, response_json:dict, verbose:bool) -> dict[str, Any]:
 
         raw = response_json.get("parse")
         assert raw
@@ -67,45 +65,43 @@ class Sorter:
         text = wrapped_text.get("*")
         assert text
         assert isinstance(text, str)
-        sorted_entries["keywords"] = self.__find_keywords(text)
+        sorted_entries["keywords"] = self.__find_keywords(text, verbose)
 
         wrapped_links = raw.get("links")
         assert wrapped_links
         assert isinstance(wrapped_links, list) 
-        sorted_entries["links"] = self.__unwrap_links(wrapped_links)
+        sorted_entries["links"] = self.__unwrap_links(wrapped_links, verbose)
+        
+        if verbose:
+            report_statement = '' \
+            'Response sorting done'
 
+            print(report_statement)
+        
         return sorted_entries
     
-    def __unwrap_links(self, raw_links:list[dict[str, Any]]) -> list[str]:
-        """
-        Extracts the links from the json into a more practical format
-
-        Parameters:
-        -----------
-        raw_links : list[dict[str, Any]]
-            The json containing the links 
-        """
-
+    def __unwrap_links(self, raw_links:list[dict[str, Any]], verbose:bool) -> list[str]:
+        counter = 0
         unwrapped_links = []
         for entry in raw_links:
             if entry.get("ns") != 0:
+                counter += 1
                 continue
             raw_link = entry.get("*")
             assert raw_link
             assert isinstance(raw_link, str)
             converted_link = raw_link.replace(" ", "_")
             unwrapped_links.append(converted_link)
+
+        if verbose:
+            report_statement = '' \
+            f'Got {len(raw_links)} raw links, {len(unwrapped_links)} to other wikipedia articles and {counter} others'
+
+            print(report_statement)
+
         return unwrapped_links
     
-    def __find_keywords(self, text:str) -> list[str]:
-        """
-        Extracts the keywords out of an article
-
-        Parameters:
-        -----------
-        text : str
-            The text of the article
-        """
+    def __find_keywords(self, text:str, verbose:bool) -> list[str]:
         
         words = text.split(" ")
         cleaned_words = [word .rstrip(",.;") for word in words]
@@ -116,6 +112,14 @@ class Sorter:
 
         frequencies = Counter(filtered_nominals).most_common()
         keywords = [entry[0] for entry in frequencies[:10]]
+
+        if verbose:
+            report_statement = '' \
+            f'Found {len(words)} words, {len(nominals)} of that being nominals.\n' \
+            f'Filtered out {len(nominals) - len(filtered_nominals)} common filler words.\n'
+            f'Sorting {len(filtered_nominals)} keywords and returning the 10 most used'
+
+            print(report_statement)
 
         return keywords
 
