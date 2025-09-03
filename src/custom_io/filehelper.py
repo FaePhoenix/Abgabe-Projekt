@@ -55,12 +55,14 @@ class FileHelper:
         if verbose:
             print("Successfully generated node-text")
 
-        connection_matrix = [[None for _ in range(node_count)] for _ in range(node_count)]
+        connection_matrix = [[-1 for _ in range(node_count)] for _ in range(node_count)]
         
         ids = [node.get_id() for node in nodes]
 
         for row_idx, start_id in enumerate(ids):
-            out_ids = [edge.get_end_id() for edge in graph.get_node_from_id(start_id).get_outgoing()]
+            start_node = graph.get_node_from_id(start_id)
+            assert start_node
+            out_ids = [edge.get_end_id() for edge in start_node.get_outgoing()]
             for col_idx, end_id in enumerate(ids):
                 if end_id in out_ids:
                     connection_matrix[row_idx][col_idx] = 1
