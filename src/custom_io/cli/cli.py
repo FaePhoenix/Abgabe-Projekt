@@ -338,46 +338,13 @@ class Parser:
         assert graph_root_option
         graph_root = graph_root_option[0]
 
-        #Extract into func to set graph size
-        custom_size_used = "-s" in valid_user_options.keys()
-        if custom_size_used:
-            user_size_option = valid_user_options.get("-s")
-            assert user_size_option
-            user_size = user_size_option[0]
-
-            valid_custom_size = user_size.isdigit() and user_size != "0"
-
-            if valid_custom_size:
-                graph_size = int(user_size)
-            else:
-                fallback_statement = '' \
-                f'Given custom size \"{user_size}\" is not a positive integer bigger than 0. Aborting graph building.'
-
-                print(fallback_statement)
-                return None
-        else:
-            graph_size = 500
-        #End func
+        graph_size = self.__get_graph_size(valid_user_options)
+        if graph_size == -1:
+            return None
         
-        #Extract into func to set graph depth
-        custom_depth_used = "-d" in valid_user_options.keys()
-        if custom_depth_used:
-            user_depth_option = valid_user_options.get("-d")
-            assert user_depth_option
-            user_depth = user_depth_option[0]
-            valid_custom_depth = user_depth.isdigit() and user_depth != "0"
-            
-            if valid_custom_depth:
-                graph_depth = int(user_depth)
-            else:
-                fallback_statement = '' \
-                f'Given custom depth \"{user_depth}\" is not a positive integer bigger than 0. Aborting graph building.'
-
-                print(fallback_statement)
-                return None
-        else:
-            graph_depth = 10
-        #End func
+        graph_depth = self.__get_graph_depth(valid_user_options)
+        if graph_depth == -1:
+            return None
 
         builder = GraphBuilder(graph_size, graph_depth)
         
@@ -399,6 +366,49 @@ class Parser:
 
         print(success_statement)
         return None
+    
+    def __get_graph_size(self, valid_user_options:dict[str, list[str]]) -> int:
+        custom_size_used = "-s" in valid_user_options.keys()
+        if custom_size_used:
+            user_size_option = valid_user_options.get("-s")
+            assert user_size_option
+            user_size = user_size_option[0]
+
+            valid_custom_size = user_size.isdigit() and user_size != "0"
+
+            if valid_custom_size:
+                graph_size = int(user_size)
+            else:
+                fallback_statement = '' \
+                f'Given custom size \"{user_size}\" is not a positive integer bigger than 0. Aborting graph building.'
+
+                print(fallback_statement)
+                graph_size = -1
+        else:
+            graph_size = 500
+        
+        return graph_size
+
+    def __get_graph_depth(self, valid_user_options:dict[str, list[str]]) -> int:
+        custom_depth_used = "-d" in valid_user_options.keys()
+        if custom_depth_used:
+            user_depth_option = valid_user_options.get("-d")
+            assert user_depth_option
+            user_depth = user_depth_option[0]
+            valid_custom_depth = user_depth.isdigit() and user_depth != "0"
+            
+            if valid_custom_depth:
+                graph_depth = int(user_depth)
+            else:
+                fallback_statement = '' \
+                f'Given custom depth \"{user_depth}\" is not a positive integer bigger than 0. Aborting graph building.'
+
+                print(fallback_statement)
+                graph_depth = -1
+        else:
+            graph_depth = 10
+
+        return graph_depth
     
     def __warn_options(self, invalid_user_options:dict[str, list[str]]) -> bool:
         warning_statement = '' \
