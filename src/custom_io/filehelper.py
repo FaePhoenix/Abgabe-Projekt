@@ -84,9 +84,10 @@ class FileHelper:
         if verbose:
             print("Successfully generated graph-text")
 
+
         with open(full_file_name, "x", encoding="UTF8") as file:
             file.write(to_write)
-
+        
         if verbose:
             print("Done writing to file")
 

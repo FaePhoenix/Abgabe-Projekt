@@ -10,7 +10,7 @@ def main() -> int:
 
 def sorter_types_testing() -> None:
     sorter = Sorter()
-    sorter.get_content("Licht")
+    sorter.get_content("Licht", True)
     return None
 
 def py_testing() -> None:

@@ -7,10 +7,10 @@ class WikiGraphQueue(ABC):
 
     Attributes:
     -----------
-    __entries : list[QueueEntry]
+    entries : list[QueueEntry]
         The list of queue entries
 
-    __blacklist : set[str]
+    blacklist : set[str]
         The names of blacklisted entries
 
     Methods:
@@ -22,7 +22,7 @@ class WikiGraphQueue(ABC):
         Add given name to the blacklist
 
     only_update_entries(new_links : list[str], origin_id : int, origin_depth : int) -> None
-        Updates the already existing entries in __entries based if the are in new_links based on the origin_id and origin_depth
+        Updates the already existing entries in entries based if the are in new_links based on the origin_id and origin_depth
 
     add_new_entries(new_links : list[str], origin_id : int, origin_depth : int) -> None:
         Updates known articles and creates new queue entries for unknown article names in new_links based on the origin_id and origin_depth
@@ -31,7 +31,7 @@ class WikiGraphQueue(ABC):
     """
     def __init__(self, starting_name:str) -> None:
         """
-        Sets up the __entries and __blacklist
+        Sets up the entries and blacklist
 
         Parameters:
         -----------
@@ -39,21 +39,21 @@ class WikiGraphQueue(ABC):
             the name of the article that is used as a start of the current graph the queue object belongs to
         """
 
-        self.__entries:list[QueueEntry] = []
-        self.__blacklist:set[str] = set(starting_name)
+        self.entries:list[QueueEntry] = []
+        self.blacklist:set[str] = set(starting_name)
         return None
     
     @abstractmethod
     def get_next_entry(self) -> QueueEntry | None:
         """
-        Returns a queue entry, removes it from the __entries and adds it to __blacklist so it isn't explored again
+        Returns a queue entry, removes it from the entries and adds it to blacklist so it isn't explored again
         or returns None if the queue is empty
         """
         pass
     
     def add_article_to_blacklist(self, blacklisted_article:str) -> None:
         """
-        Adds the given article name to __blacklist
+        Adds the given article name to blacklist
 
         Parameters:
         -----------
@@ -62,8 +62,8 @@ class WikiGraphQueue(ABC):
 
         """
 
-        if blacklisted_article not in self.__blacklist:
-            self.__blacklist.add(blacklisted_article)
+        if blacklisted_article not in self.blacklist:
+            self.blacklist.add(blacklisted_article)
 
         return None
 
@@ -87,8 +87,8 @@ class WikiGraphQueue(ABC):
             Should the execution be verbose
         """
 
-        filtered_links = [link for link in new_links if link not in self.__blacklist]
-        known_entries = [entry.get_name() for entry in self.__entries]
+        filtered_links = [link for link in new_links if link not in self.blacklist]
+        known_entries = [entry.get_name() for entry in self.entries]
         updatable_links = [link for link in filtered_links if link in known_entries]
 
         if verbose:
@@ -120,8 +120,8 @@ class WikiGraphQueue(ABC):
             Should the execution be verbose
         """
 
-        filtered_links = [link for link in new_links if link not in self.__blacklist]
-        known_entries = [entry.get_name() for entry in self.__entries]
+        filtered_links = [link for link in new_links if link not in self.blacklist]
+        known_entries = [entry.get_name() for entry in self.entries]
         updatable_links = [link for link in filtered_links if link in known_entries]
         
         if verbose:
@@ -147,12 +147,12 @@ class WikiGraphQueue(ABC):
     def __add_entries(self, links:list[str], origin_id:int, origin_depth:int) -> None:
         for link in links:
             new_entry = QueueEntry(link, origin_id, origin_depth + 1)
-            self.__entries.append(new_entry)
+            self.entries.append(new_entry)
 
         return None
     
     def __update_entries(self, links:list[str], origin_id:int, origin_depth:int) -> None:
-        for entry in self.__entries:
+        for entry in self.entries:
             if (name := entry.get_name()) in links:
                 links.remove(name)
                 entry.add_origin(origin_id, origin_depth)

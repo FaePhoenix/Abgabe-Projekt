@@ -84,15 +84,18 @@ class Parser:
         if user_options == None or len(user_options) == 0:
             return (valid_user_options, invalid_user_options)
         
-        options_positions = [idx for idx, user_option in enumerate(user_options) if user_option[0] == "-"]
-        options_positions.append(len(user_options))
+        trimmed_user_options = [user_option.replace(" ", "") for user_option in user_options]
+        filtered_user_options = [user_option for user_option in trimmed_user_options if (len(user_option) > 0 )]
+
+        options_positions = [idx for idx, user_option in enumerate(filtered_user_options) if user_option[0] == "-"]
+        options_positions.append(len(filtered_user_options))
 
         for idx in range(len(options_positions) - 1):
             
             current_pos = options_positions[idx]
             next_pos = options_positions[idx + 1]
 
-            chunk = user_options[current_pos:next_pos]
+            chunk = filtered_user_options[current_pos:next_pos]
 
             option = chunk.pop(0)
             arguments = chunk
@@ -311,7 +314,7 @@ class Parser:
         return None
     
     def __build(self, options:list[str]|None) -> None:
-        available_options = {"-h" : 0, "-v" : 0, "-s" : 1, "-d" : 1, "-r" : 1, "q" : 1}
+        available_options = {"-h" : 0, "-v" : 0, "-s" : 1, "-d" : 1, "-r" : 1, "-q" : 1}
         valid_user_options, invalid_user_options = self.__parse_options(options, available_options)
 
         if "-h" in valid_user_options.keys():
@@ -319,10 +322,11 @@ class Parser:
             'This command is used to build an active graph from the name of an article.\n' \
             'Mandatory Options:\n' \
             ' -r [articlename] : The name of the wikipedia article that you want to use as a root for the graph\n' \
+            ' -q [n|p] : The type of queue to select the next article (n) normal queue or (p) priority queue\n' \
             'Available Options:\n' \
             ' -h : help option, to display further information. Disables functionality (Currently used)\n' \
             ' -v : verbose logging to get further information about the graph saving\n' \
-            ' -s [num] : the amount of articles to be included. (Default is 500)' \
+            ' -s [num] : the amount of articles to be included. (Default is 500)\n' \
             ' -d [num] : the maximal depth or distance to the original article that should be included. (Default is 10)'
 
             print(help_statement)
@@ -335,9 +339,6 @@ class Parser:
             'Aborting graph building.'
 
             print(failure_statement)
-            return None
-        
-        if not self.__warn_options(invalid_user_options):
             return None
 
         graph_root_option = valid_user_options.get("-r")
@@ -375,6 +376,9 @@ class Parser:
             print(failure_statement)
             return None
 
+        if not self.__warn_options(invalid_user_options):
+            return None
+        
         verbose = "-v" in valid_user_options.keys()
 
         if verbose:
@@ -455,6 +459,10 @@ class Parser:
         return graph_depth
     
     def __warn_options(self, invalid_user_options:dict[str, list[str]]) -> bool:
+        
+        if not invalid_user_options:
+            return True
+
         warning_statement = '' \
         'Found invalid options:'
 

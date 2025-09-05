@@ -62,11 +62,12 @@ class GraphBuilder:
         assert starting_links
         assert isinstance(starting_links, list)
 
+        report_statement = f'\n(1|{len(self.__nodes.items())})'
+
         if verbose:
-            report_statement = '' \
-            f'Built root node and found id {starting_id} and found {len(starting_links)} new links'
+            report_statement += f'Built root node and found id {starting_id} and {len(starting_links)} new links'
             
-            print(report_statement)
+        print(report_statement)
         
         self.__queue.add_new_entries(starting_links, starting_id, 0, verbose)
 
@@ -86,7 +87,7 @@ class GraphBuilder:
             
             if verbose:
                 report_statement = '' \
-                f'Next queue entry: {article_name} at depth {article_depth}'
+                f'\nNext queue entry: {article_name} at depth {article_depth}'
 
                 print(report_statement)
             
@@ -109,11 +110,13 @@ class GraphBuilder:
             assert new_keywords
             assert isinstance(new_keywords, list)
 
-            if verbose:
-                report_statement = '' \
-                f'Adding Node \"{article_name}\" with id {article_id}'
+            report_statement = '' \
+            f'({len(self.__nodes.items()) + 1}|{self.__max_graph_size})'
 
-                print(report_statement)
+            if verbose:
+                report_statement += f'Adding Node \"{article_name}\" with id {article_id}'
+                
+            print(report_statement)
             
             self.__add_node(article_id, article_name, new_keywords, article_depth)
             self.__add_edges_toward_node(next_queue_entry.get_origins(), article_id, verbose)

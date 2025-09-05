@@ -116,7 +116,7 @@ class Sorter:
         if verbose:
             report_statement = '' \
             f'Found {len(words)} words, {len(nominals)} of that being nominals.\n' \
-            f'Filtered out {len(nominals) - len(filtered_nominals)} common filler words.\n'
+            f'Filtered out {len(nominals) - len(filtered_nominals)} common filler words.\n' \
             f'Sorting {len(filtered_nominals)} keywords and returning the 10 most used'
 
             print(report_statement)
