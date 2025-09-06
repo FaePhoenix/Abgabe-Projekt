@@ -42,10 +42,13 @@ class Sorter:
 
         return self.__sort_wiki_json(response, verbose)
 
-    def __sort_wiki_json(self, response_json:dict, verbose:bool) -> dict[str, Any]:
+    def __sort_wiki_json(self, response_json:dict, verbose:bool) -> dict[str, Any] | None:
 
         raw = response_json.get("parse")
-        assert raw
+
+        if not raw:
+            return None
+        
         assert isinstance(raw, dict)
         sorted_entries:dict[str, Any] = {}
 
@@ -74,7 +77,7 @@ class Sorter:
         
         if verbose:
             report_statement = '' \
-            'Response sorting done'
+            'Response sorting done\n'
 
             print(report_statement)
         

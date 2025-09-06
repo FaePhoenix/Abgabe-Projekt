@@ -127,6 +127,7 @@ class Parser:
         'read: Read a saved graph file into memory to use it.\n' \
         'save: Save an active graph into a file.\n' \
         'build: Create a new active graph.\n' \
+        'visualize: Create a visualization of an active graph\n' \
         'traverse: Get further information about an active graph.\n' \
         'circles: Detect circular links in an active graph.\n' \
         'exit: Exit this programm.'
@@ -211,7 +212,7 @@ class Parser:
         if not file_name_given:
             failure_statement = '' \
             'Cannot read graph, cause of missing valid file name to read graph from.\n' \
-            'Please use \"-f [filename]\" to select a file.\n' \
+            'Please use \"-f [filename]\" to select a file inside the txtfiles folder in this project.\n' \
             'Files can only be found in the currently selected directory.\n' \
             'For further help, use \"-h\"'
 
@@ -238,12 +239,8 @@ class Parser:
             print(failure_statement)
             return None
 
-        
         root_name = read_graph.get_root()
         graph_size = read_graph.get_node_count()
-
-        print(f"!{root_name = }!")
-        print(f"!{graph_size = }!")
         
         key = f"{root_name}-{graph_size}"
         self.graphs[key] = read_graph
@@ -325,7 +322,7 @@ class Parser:
         'Done writing to file to [projectfolder]\\txtfiles\\'
         
         if verbose:
-            success_statement += f'\nLocated at {os.getcwd()+file_name}'
+            success_statement += f'\nLocated at {os.getcwd() + '\\txtfiles\\'+ file_name}'
         
         print(success_statement)
 
@@ -409,8 +406,8 @@ class Parser:
             f'Max graph depth: {graph_depth}\n' \
             'Queue type: '
             
-            queue_type_name = 'normal queue' if queue_type == "n" else 'priority queue'
-            arguments_statement += queue_type_name
+            queue_type_name = 'normal' if queue_type == "n" else 'priority'
+            arguments_statement += queue_type_name + ' queue\n'
 
             print(arguments_statement)
 
@@ -515,7 +512,7 @@ class Parser:
             'This command is used to create a visualization of an active graphs either interactive or as an image\n' \
             'Mandatory Options:\n' \
             ' -g [graphname] : the name of an active graph that should be visualized\n' \
-            ' -t [s|d] : the type of visualization (s) static or (d) dynamic. Warning: dynamic for larger graphs may take very long.\n'
+            ' -t [s|d] : the type of visualization (s) static or (d) dynamic. Warning: dynamic for larger graphs may take very long.\n' \
             'Available Options:\n' \
             ' -h : help option, to display further information. Disables functionality (Currently used)\n' \
             ' -v : verbose output to get further information about the active graphs'

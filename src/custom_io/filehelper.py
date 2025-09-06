@@ -110,7 +110,11 @@ class FileHelper:
         file_content = self.__read_file(full_file_name)
         
         if file_content == None:
-            print("File empty. Abort graph reading.")
+            failure_statement = '' \
+            f'Given file: {full_file_name} is empty' \
+            'Abort graph reading'
+            
+            print(failure_statement)
             return None
         
         if verbose:

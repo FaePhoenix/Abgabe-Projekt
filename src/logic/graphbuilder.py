@@ -62,7 +62,7 @@ class GraphBuilder:
         assert starting_links
         assert isinstance(starting_links, list)
 
-        report_statement = f'\n(1|{len(self.__nodes.items())})'
+        report_statement = f'\n(1|{self.__max_graph_size})'
 
         if verbose:
             report_statement += f'Built root node and found id {starting_id} and {len(starting_links)} new links'
