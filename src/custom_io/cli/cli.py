@@ -1,6 +1,7 @@
 from datastructures.graph.graph import Graph
 from custom_io.filehelper import FileHelper
 from logic.graphbuilder import GraphBuilder
+from custom_io.visualizer.visualizer import Visualizer
 import os
 
 
@@ -8,7 +9,7 @@ class Parser:
     def __init__(self) -> None:
         self.running : bool = True
         self.graphs: dict[str, Graph] = {}
-        self.filehelper : FileHelper = FileHelper(os.getcwd())
+        self.filehelper : FileHelper = FileHelper()
         return None
     
     def run(self) -> None:
@@ -51,6 +52,9 @@ class Parser:
 
                 case "traverse":
                     continue
+
+                case "visualize":
+                    self.__visualize(options)
 
                 case "exit":
                     self.running = False
@@ -175,9 +179,9 @@ class Parser:
 
         print(intro_statement)
 
-        for name, graph in self.graphs.items():
+        for (name, graph) in self.graphs.items():
             if verbose_option:
-                graph_line = f'{name}, Density: {graph.get_density}'
+                graph_line = f'- {name}, Density: {graph.get_density():.2f}'
 
             else:
                 graph_line = f'- {name}'
@@ -193,6 +197,7 @@ class Parser:
         if "-h" in valid_user_options.keys():
             help_statement = ''\
             'This command is used to read graphs from textfiles created by this CLI for further use.\n' \
+            'Files are only found in the \"txtfiles\" folder inside the project folder\n' \
             'Mandatory Options:\n' \
             ' -f [filename] : specify the filename to read from, only selecting from the currently selected directory\n\n' \
             'Available Options:\n' \
@@ -216,13 +221,13 @@ class Parser:
         if not self.__warn_options(invalid_user_options):
             return None
         
-        verbose_option = "-v" in valid_user_options.keys()
+        verbose = "-v" in valid_user_options.keys()
 
         filename_option = valid_user_options.get("-f")
         assert filename_option
         file_name = filename_option[0]
 
-        read_graph = self.filehelper.read_graph_from_file(file_name, verbose_option) 
+        read_graph = self.filehelper.read_graph_from_file(file_name, verbose) 
         
         if read_graph == None:
             failure_statement = '' \
@@ -237,6 +242,9 @@ class Parser:
         root_name = read_graph.get_root()
         graph_size = read_graph.get_node_count()
 
+        print(f"!{root_name = }!")
+        print(f"!{graph_size = }!")
+        
         key = f"{root_name}-{graph_size}"
         self.graphs[key] = read_graph
 
@@ -284,7 +292,8 @@ class Parser:
             failure_statement = '' \
             f'Given the graph name: {graph_name}\n' \
             'This is not the name of any active graph.\n' \
-            'Please give the name of an active graph'
+            'Please give the name of an active graph.\n' \
+            'View these by using the \"view\" command'
 
             print(failure_statement)
             return None
@@ -310,6 +319,15 @@ class Parser:
             'Please refer to the error message for further information\n'
             
             print(failure_statement + str(e))
+            return None
+
+        success_statement = '' \
+        'Done writing to file to [projectfolder]\\txtfiles\\'
+        
+        if verbose:
+            success_statement += f'\nLocated at {os.getcwd()+file_name}'
+        
+        print(success_statement)
 
         return None
     
@@ -336,6 +354,7 @@ class Parser:
         if not root_given:
             failure_statement = '' \
             'No root for graph building given. Can\'t start building graph without a starting point.\n' \
+            'Please give a root by using \'-r [root] \'\n' \
             'Aborting graph building.'
 
             print(failure_statement)
@@ -357,6 +376,7 @@ class Parser:
         if not queue_type_given:
             failure_statement = '' \
             'No queue type given. Can\'t start building graph without a queue type.\n' \
+            'Please specify a queue type by using \"-q [n|p]\" to either use a (n) normal queue or a (p) priority queue\n' \
             'Aborting graph building.'
 
             print(failure_statement)
@@ -486,7 +506,157 @@ class Parser:
             print("Continuing command execution")
             return True
     
+    def __visualize(self, options:list[str]|None) -> None:
+        available_options = {"-h" : 0, "-v" : 0, "-g" : 1, "-t" : 1}
+        valid_user_options, invalid_user_options = self.__parse_options(options, available_options)
 
+        if "-h" in valid_user_options.keys():
+            help_statement = '' \
+            'This command is used to create a visualization of an active graphs either interactive or as an image\n' \
+            'Mandatory Options:\n' \
+            ' -g [graphname] : the name of an active graph that should be visualized\n' \
+            ' -t [s|d] : the type of visualization (s) static or (d) dynamic. Warning: dynamic for larger graphs may take very long.\n'
+            'Available Options:\n' \
+            ' -h : help option, to display further information. Disables functionality (Currently used)\n' \
+            ' -v : verbose output to get further information about the active graphs'
+
+            print(help_statement)
+            return None
+
+        if "-g" not in valid_user_options.keys():
+            failure_statement = '' \
+            'No graphname for visualization given. Can\'t continue\n' \
+            'Please supply the name of an active graph using: \"-g [graphname]\"'
+
+            print(failure_statement)
+            return None
+        
+        if "-t" not in valid_user_options.keys():
+            failure_statement = '' \
+            'No visualization type given. Can\'t continue\n' \
+            'Please supply a type of visualization, either (s) static or (d) dynmaic\n' \
+            'Using: \"-t [s|d]\"'
+
+            print(failure_statement)
+            return None
+
+        if not self.__warn_options(invalid_user_options):
+            return None         
+
+        wrapped_graph_name = valid_user_options.get("-g")
+        assert wrapped_graph_name
+        graph_name = wrapped_graph_name[0]
+
+        if graph_name not in self.graphs.keys():
+            failure_statement = '' \
+            f'Provided graph {graph_name} is not an active graph.\n' \
+            'For an overview of active graphs use \"view\"\n' \
+            'Can\'t continue visualization'
+
+            print(failure_statement)
+            return None
+        
+        graph = self.graphs.get(graph_name)
+        assert graph
+
+        wrapped_visualization_type = valid_user_options.get("-t")
+        assert wrapped_visualization_type
+        visualization_type = wrapped_visualization_type[0]
+
+        if visualization_type not in ["s", "d"]:
+            failure_statement = '' \
+            f'Provided visualizdation type \"{visualization_type}\" is not [s|d]\n' \
+            'Can\'t continue visualization'
+
+            print(failure_statement)
+            return None
+        
+        assert visualization_type in ["s", "d"]
+
+        verbose = "-v" in valid_user_options.keys()
+
+        match visualization_type:
+            case "s":
+                self.__static_visualization(graph, verbose)
+
+            case "d":
+                self.__dynamic_visualization(graph, verbose)
+
+        return None
+    
+    def __static_visualization(self, graph:Graph, verbose:bool) -> None:
+        visualizer = Visualizer()
+
+        image_size, dpi = self.__get_static_vis_options()
+
+        disected_file_position = os.path.realpath(__file__).split("\\")
+        project_folder = "\\".join(disected_file_position[:len(disected_file_position) - 4])
+        images_folder_path = project_folder + "\\images\\"
+
+        visualizer.save_image_from_graph(graph, images_folder_path, image_size, dpi, verbose)
+
+        return None
+    
+    def __get_static_vis_options(self) -> tuple[tuple[int, int], int]:
+        explanation_statement = '' \
+        'Please enter either a triplet of image width, image height and resolution (dpi) or accept default by skipping\n' \
+        'Default: 150,90,100\n' \
+        'Warning: image file size scales multiplicative with both width values and the resolution'
+
+        print(explanation_statement)
+
+        user_response = input()
+
+        default_img_size = (150, 90)
+        default_dpi = 100
+
+
+        if len(user_response.replace(" ", "")) == 0:
+            return default_img_size, default_dpi
+
+        user_values = user_response.split(",")
+
+        if len(user_values) != 3:
+            warning_statement = '' \
+            f'Got user input: \"{user_response}\"' \
+            'But couldn\'t seperate into three numbers\n' \
+            'Using default values'
+
+            print(warning_statement)
+            return default_img_size, default_dpi
+        
+        values = []
+        
+        for user_value in user_values:
+            if not user_value.isnumeric():
+                warning_statement = '' \
+                f'Got user input: \"{user_response}\"' \
+                f'And part \"{user_value}\" can not be interpreted as a number\n' \
+                'Using default values'
+
+                print(warning_statement)
+                return default_img_size, default_dpi
+            
+            value = int(user_value)
+
+            if value <= 0 or value > 100000:
+                warning_statement = '' \
+                'Values are only permitted between 0 and 100000\n' \
+                f'Provided value: {value} falls outside that\n' \
+                'Using default values'
+
+                print(warning_statement)
+                return default_img_size, default_dpi
+            values.append(value)
+
+        img_size = values[0], values[1]
+        dpi = values[2]
+
+        return img_size, dpi
+
+    def __dynamic_visualization(self, graph:Graph, verbose:bool) -> None:
+        return None
+    
 def main() -> int:
     return 0
 

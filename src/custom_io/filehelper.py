@@ -1,6 +1,8 @@
 from datastructures.graph.graph import Graph
 from datastructures.graph.node import Node
 from datastructures.graph.edge import Edge
+import os
+
 
 class FileHelper:
     """
@@ -15,11 +17,14 @@ class FileHelper:
         Reads the file at file_name and returns the saved graph
     """
 
-    def __init__(self, directory:str) -> None:
+    def __init__(self) -> None:
         """
         Sets up the object
         """
-        self.directory = directory
+        disected_file_position = os.path.realpath(__file__).split("\\")
+        project_folder = "\\".join(disected_file_position[:len(disected_file_position) - 3])
+        self.__directory = project_folder + "\\"
+        self.__setup_folders()
         return None
     
     def write_graph_to_file(self, graph:Graph, file_name:str, verbose:bool) -> None:
@@ -79,17 +84,13 @@ class FileHelper:
             print("Successfully converted connection matrix into edge-text")
 
         to_write = to_write.rstrip("\n")
-        full_file_name = self.directory + file_name
+        full_file_name = self.__directory + "txtfiles\\" + file_name
 
         if verbose:
             print("Successfully generated graph-text")
 
-
         with open(full_file_name, "x", encoding="UTF8") as file:
             file.write(to_write)
-        
-        if verbose:
-            print("Done writing to file")
 
         return None
     
@@ -105,7 +106,7 @@ class FileHelper:
             Should the action be logged verbosely
         """
 
-        full_file_name = self.directory + file_name
+        full_file_name = self.__directory + 'txtfiles\\' + file_name
         file_content = self.__read_file(full_file_name)
         
         if file_content == None:
@@ -116,7 +117,7 @@ class FileHelper:
             print(f"Reading file: {full_file_name}\nFound {len(file_content)} lines")
 
         first_line = file_content[0]
-        count, root = first_line.split(";")
+        count, root = first_line.rstrip("\n").split(";")
         node_count = int(count)
         node_lines = file_content[1:node_count + 1]
 
@@ -197,6 +198,17 @@ class FileHelper:
         except FileNotFoundError:
             return None
         return file_content
+
+    def __setup_folders(self) -> None:
+        txtfiles_path = self.__directory + "txtfiles"
+        if not os.path.isdir(txtfiles_path):
+            os.mkdir(txtfiles_path)
+
+        images_path = self.__directory + "images"
+        if not os.path.isdir(images_path):
+            os.mkdir(images_path)
+
+        return None
 
 def main()-> int:
     print("Calling main function in filehelper")
