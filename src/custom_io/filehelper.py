@@ -111,7 +111,7 @@ class FileHelper:
         
         if file_content == None:
             failure_statement = '' \
-            f'Given file: {full_file_name} is empty' \
+            f'Given file: {full_file_name} is empty\n' \
             'Abort graph reading'
             
             print(failure_statement)

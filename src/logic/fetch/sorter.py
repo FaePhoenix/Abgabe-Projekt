@@ -36,7 +36,7 @@ class Sorter:
         
         if verbose:
             report_statement = '' \
-            'Request was successfull, beginning sorting of response'
+            'Got response from wikipedia, beginning sorting of response'
 
             print(report_statement)
 
@@ -47,6 +47,11 @@ class Sorter:
         raw = response_json.get("parse")
 
         if not raw:
+            failure_statement = '' \
+            'Recieved content from wikipedia but not in the expected format.\n' \
+            'Can\'t read article'
+
+            print(failure_statement)
             return None
         
         assert isinstance(raw, dict)

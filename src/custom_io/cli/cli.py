@@ -71,7 +71,8 @@ class Parser:
         saved = 0
 
         for name, graph in self.graphs.items():
-            self.filehelper.write_graph_to_file(graph, name, False)
+            file_name = name + ".txt"
+            self.filehelper.write_graph_to_file(graph, file_name, False)
             saved += 1
             print('Successfully saved graph' + name + f'. Done {(float(saved)/amount):.2%}')
 
@@ -198,9 +199,9 @@ class Parser:
         if "-h" in valid_user_options.keys():
             help_statement = ''\
             'This command is used to read graphs from textfiles created by this CLI for further use.\n' \
-            'Files are only found in the \"txtfiles\" folder inside the project folder\n' \
+            'Files are only found in the \"txtfiles\" folder inside the project folder\n\n' \
             'Mandatory Options:\n' \
-            ' -f [filename] : specify the filename to read from, only selecting from the currently selected directory\n\n' \
+            ' -f [filename] : specify the filename to read from, only selecting from the txtfiles directory\n\n' \
             'Available Options:\n' \
             ' -h : help option, to display further information. Disables functionality (Currently used)\n' \
             ' -v : verbose logging to get further information about the graph reading'
@@ -212,8 +213,8 @@ class Parser:
         if not file_name_given:
             failure_statement = '' \
             'Cannot read graph, cause of missing valid file name to read graph from.\n' \
-            'Please use \"-f [filename]\" to select a file inside the txtfiles folder in this project.\n' \
-            'Files can only be found in the currently selected directory.\n' \
+            'Please use \"-f [filename]\" to select a file.\n' \
+            'Files can only be found in the txtfiles folder in this project.\n' \
             'For further help, use \"-h\"'
 
             print(failure_statement)
