@@ -1,11 +1,16 @@
 from custom_io.filehelper import FileHelper
 from datastructures.cycles.tarjan_calculator import TarjanCalculator
+import custom_io.visualizer.fancy_visualizer as vis
 import os
 
 def main() -> int:
     #Just used for testing out new components and how they work together with old components
-    filepath_testing()
+    fancy_vis_test()
     return 0
+
+def fancy_vis_test() -> None:
+    vis.main()
+    return None
 
 def filepath_testing() -> None:
     disected = os.path.realpath(__file__).split('\\')

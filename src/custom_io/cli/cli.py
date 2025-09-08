@@ -1,7 +1,9 @@
+import re
 from datastructures.graph.graph import Graph
 from custom_io.filehelper import FileHelper
 from logic.graphbuilder import GraphBuilder
 from custom_io.visualizer.visualizer import Visualizer
+from custom_io.visualizer.fancy_visualizer import FancyVisualizer
 import os
 
 
@@ -653,7 +655,131 @@ class Parser:
         return img_size, dpi
 
     def __dynamic_visualization(self, graph:Graph, verbose:bool) -> None:
+
+        settings = self.__get_dynamic_vis_options()
+
+        dyn_visualizer = FancyVisualizer(settings)
+
+        dyn_visualizer.generate_browser_graph(graph, verbose)
+        
         return None
+    
+    def __get_dynamic_vis_options(self) -> dict[str, str]:
+        explanation_statement = '' \
+        'Please select settings for the creation of the interactive graph:' 
+
+        print(explanation_statement)
+
+        settings = {}
+        
+        user_width, user_height = self.__get_dyn_vis_size()
+        settings["width"] = user_width
+        settings["heigth"] = user_height
+
+        user_bg_color = self.__get_dyn_vis_bgcolor()
+        settings["bgcolor"] = user_bg_color
+
+        user_node_color = self.__get_dyn_vis_nodecolor()
+        settings["nodecolor"] = user_node_color
+
+        return settings
+
+    def __get_dyn_vis_nodecolor(self) -> str:
+        nodecoloring_statement = '' \
+        'Please enter a color hexcode for the nodes or skip to accept the default\n' \
+        'Default is: 97c2fc (light blue)'
+
+        user_node_color = input(nodecoloring_statement)
+
+        if len(user_node_color.replace(" ", "")) == 0:
+            return "#97c2fc"
+        
+        valid_hex = "^(?:[0-9a-fA-F]{2}){3}$"
+        match = re.search(valid_hex, user_node_color
+                          )
+        if not match:
+            warning_statement = '' \
+            f'Given color: \"{user_node_color}\" is not a valid hex color code.\n' \
+            'Using default'
+            print(warning_statement)
+            return "#97c2fc"
+
+        report_statement = '' \
+        'Recieved node color:\n' \
+        f'#{user_node_color}'
+        print(report_statement)
+        return f"#{user_node_color}"
+
+    def __get_dyn_vis_bgcolor(self) -> str:
+        bgcoloring_statement = '' \
+        'Please enter a color hexcode for the background or skip to accept the default\n' \
+        'Default is: 00052E (dark blue)'
+
+        user_bg_color = input(bgcoloring_statement)
+
+        if len(user_bg_color.replace(" ", "")) == 0:
+            return "#00052E"
+        
+        valid_hex = "^(?:[0-9a-fA-F]{2}){3}$"
+        match = re.search(valid_hex, user_bg_color)
+
+        if not match:
+            warning_statement = '' \
+            f'Given color: \"{user_bg_color}\" is not a valid hex color code.\n' \
+            'Using default'
+
+            print(warning_statement)
+            return "#00052E"
+            
+        report_statement = '' \
+        'Recieved background color:\n' \
+        f'#{user_bg_color}'
+
+        print(report_statement)
+        return f"#{user_bg_color}"
+
+    def __get_dyn_vis_size(self) -> tuple[str, str]:
+        sizing_statment = '' \
+        'Please enter a tuple of pixel amount to specify the width and heigth or skip to accept default\n' \
+        'Valid values are integers between 100 and 10.000\n' \
+        'Default is: 1500,1500'
+
+        user_size = input(sizing_statment)
+
+        if len(user_size.replace(" ", "")) == 0:
+            return "1500px", "1500px"
+
+        split = user_size.split(",")
+        
+        if len(split) != 2:
+            warning_statement = '' \
+            f'Given size {user_size} is not in the format: \"width,height\".\n' \
+            'Using default size'
+
+            print(warning_statement)
+            return "1500px", "1500px"
+        
+        user_width = split[0]
+        user_heigth = split[1]
+
+        user_width_valid = user_width.isnumeric() and int(user_width) >= 100 and int(user_width) <= 10000
+        user_heigth_valid = user_heigth.isnumeric() and int(user_heigth) >= 100 and int(user_heigth) <= 10000
+        
+        if not (user_width_valid and user_heigth_valid):
+            warning_statement = '' \
+            f'Given size {user_heigth},{user_width} are not valid values.\n' \
+            'Only integers between 100 and 10.000 are accepted.\n' \
+            'Using default size'
+
+            print(warning_statement)
+            return "1500px", "1500px"
+
+        report_statement = '' \
+        'Recieved size:\n' \
+        f'width = {user_width}, heigth = {user_heigth}'
+        
+        print(report_statement)
+        return f"{user_width}px", f"{user_heigth}px"
     
 def main() -> int:
     return 0
