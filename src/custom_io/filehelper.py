@@ -84,13 +84,47 @@ class FileHelper:
             print("Successfully converted connection matrix into edge-text")
 
         to_write = to_write.rstrip("\n")
-        full_file_name = self.__directory + "txtfiles\\" + file_name
 
         if verbose:
             print("Successfully generated graph-text")
 
-        with open(full_file_name, "x", encoding="UTF8") as file:
-            file.write(to_write)
+        self.__write_to_file(file_name, to_write)
+
+        return None
+    
+    def __write_to_file(self, file_name:str, file_content:str) -> None:
+        full_file_name = self.__directory + "txtfiles\\" + file_name
+
+        writing_parameter = "x"
+
+        while os.path.exists(full_file_name):
+            warning_statement = '' \
+            f'File \"{file_name}\" already exists in the txtfiles-folder.\n' \
+            'Please specify if you want to (o) overwrite the existing file or if u want to (r) rename the new file.'
+
+            user_repsonse = input(warning_statement)
+
+            match user_repsonse:
+                case "o":
+                    writing_parameter = "w"
+                    break
+                
+                case "r":
+                    report_statement = '' \
+                    'Please give a new file_name:'
+
+                    file_name = input(report_statement)
+                    full_file_name = self.__directory + "txtfiles\\" + file_name
+
+                case _:
+                    warning_statement = '' \
+                    f'Given response \"{user_repsonse}\" was neither o to override nor r to rename\n' \
+                    'Please try again'
+
+                    print(warning_statement)
+
+        with open(file = full_file_name, mode = writing_parameter, encoding="UTF8") as file:
+            file.write(file_content)
 
         return None
     
