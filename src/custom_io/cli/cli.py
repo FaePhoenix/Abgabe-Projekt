@@ -937,7 +937,15 @@ class Parser:
                                 print(warning_statement)
 
                 case "2":
-                    continue
+                    highest_in = graph.get_node_with_highest_in()
+                    highest_out = graph.get_node_with_highest_out()
+
+                    report_statement = '' \
+                    f'Graph root: {root_name} ({root_id})\n' \
+                    f'Highest_incoming: {highest_in.get_name()} ({highest_in.get_id()})\n' \
+                    f'Highest outgoing: {highest_out.get_name()} ({highest_out.get_id()})'
+
+                    print(report_statement)
 
                 case "3":
                     continue
