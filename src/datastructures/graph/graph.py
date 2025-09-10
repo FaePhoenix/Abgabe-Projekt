@@ -83,9 +83,6 @@ class Graph:
         return set()   
 
     def __extend_nodes(self) -> None:
-        """
-        Saves information about the interconnectivity, given by the edges, directly into the nodes
-        """
 
         for edge in self.__edges.values():
             start_id = edge.get_start_id()
@@ -207,6 +204,22 @@ class Graph:
             return None
         
         return node.get_name()
+    
+    def get_node_id_from_name(self, name:str) -> int | None:
+        """
+        Returns the id of the node which name matches the provided if it exists
+
+        Parameters:
+        -----------
+        name : str
+            The name of the node which id is being looked for
+        """
+        
+        for node in self.__nodes.values():
+            if node.get_name() == name:
+                return node.get_id()
+            
+        return None
 
 
 def main() -> int:

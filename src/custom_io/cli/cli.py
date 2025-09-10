@@ -6,6 +6,8 @@ from custom_io.visualizer.visualizer import Visualizer
 from custom_io.visualizer.fancy_visualizer import FancyVisualizer
 import os
 
+from src.datastructures.graph.node import Node
+
 
 class Parser:
     def __init__(self) -> None:
@@ -53,7 +55,8 @@ class Parser:
                     continue
 
                 case "traverse":
-                    continue
+                    self.__traverse(options)
+                    
 
                 case "visualize":
                     self.__visualize(options)
@@ -781,6 +784,175 @@ class Parser:
         print(report_statement)
         return f"{user_width}px", f"{user_heigth}px"
     
+    def __traverse(self, options:list[str]|None) -> None:
+        available_options = {"-h" : 0, "-g" : 1}
+        valid_user_options, invalid_user_options = self.__parse_options(options, available_options)
+
+        if "-h" in valid_user_options.keys():
+            help_statement = ''\
+            'This command is used to get further information about an active graph.\n' \
+            'Mandatory Options:\n' \
+            ' -g [graphname] : The name of the graph that you want to traverse\n' \
+            'Available Options:\n' \
+            ' -h : help option, to display further information. Disables functionality (Currently used)\n' \
+
+            print(help_statement)
+            return None
+        
+        graph_option_set = "-g" in valid_user_options.keys()
+        if not graph_option_set:
+            failure_statement = '' \
+            'The option \"-g\" is manditory and was not set.\n' \
+            'Please use \"-g [graph_name]\" to select a graph to save'
+
+            print(failure_statement)
+            return None
+        
+        wrapped_graph_name = valid_user_options.get("-g")
+        assert wrapped_graph_name
+        graph_name = wrapped_graph_name[0]
+
+        graph_exists = graph_name in self.graphs.keys()
+        if not graph_exists:
+            failure_statement = '' \
+            f'Given the graph name: {graph_name}\n' \
+            'This is not the name of any active graph.\n' \
+            'Please give the name of an active graph.\n' \
+            'View these by using the \"view\" command'
+
+            print(failure_statement)
+            return None
+
+        graph = self.graphs.get(graph_name)
+        assert graph
+        
+        if not self.__warn_options(invalid_user_options):
+            return None
+        
+        root_name = graph.get_root()
+        root_id = graph.get_node_id_from_name(root_name)
+        assert root_id
+
+        current_node = graph.get_node_from_id(root_id)
+        assert current_node
+
+        while True:
+            report_statement = '' \
+            f'Currently focused on the node: {current_node.get_name()} ({current_node.get_id()})\n' \
+            'Please select your next action:\n' \
+            '   (1) get further node information\n' \
+            '   (2) get information about special nodes\n' \
+            '   (3) change the currently focused node\n' \
+            '   (4) end graph traversal\n'
+            
+            user_choice = input(report_statement)
+            
+            if user_choice not in ["1", "2", "3", "4"]:
+                warning_statement = '' \
+                f'Given input \"{user_choice}\" is not one of the three options (1, 2, 3 or 4)'
+
+                print(warning_statement)
+                continue
+
+            match user_choice:
+                case "1":
+                    node_name = current_node.get_name()
+                    node_id = current_node.get_id()
+                    node_depth = current_node.get_depth()
+
+                    incoming = current_node.get_incoming()
+                    outgoing = current_node.get_outgoing()
+
+                    keywords = current_node.get_keywords()
+                    report_statement = '' \
+                    f'Node {node_name} ({node_id})\n' \
+                    f'found at a distance of {node_depth} to the root of the graph.\n' \
+                    f'{len(incoming + outgoing)} neighbours found ({len(incoming)} incoming and {len(outgoing)} outgoing)\n' \
+                    f'Important keywords:'
+                    
+                    print(report_statement)
+
+                    for keyword in keywords:
+                        print(f' - {keyword}')
+
+                    report_statement = '' \
+                    'To view found neighbours please select (in) incoming or (out) outgoing or skip to skip'
+
+                    user_action = input(report_statement)
+
+                    match user_action:
+                        case "in":
+                            report_statement = '' \
+                            'Incoming neighbours:'
+                            
+                            print(report_statement)
+
+                            incoming_ids = [neighbour.get_start_id() for neighbour in incoming]
+                            incoming_neighbours = [graph.get_node_from_id(id) for id in incoming_ids]
+                            filtered_incoming_neighbours = [neighbour for neighbour in incoming_neighbours if neighbour]
+
+                            line_string = ''
+                            for neighbour in filtered_incoming_neighbours:
+                                neighbour_string = f"{neighbour.get_name()} ({neighbour.get_id()}), "
+
+                                if len(line_string) + len(neighbour_string) < 80:
+                                    line_string += neighbour_string
+
+                                else:
+                                    print(line_string)
+                                    line_string = neighbour_string
+
+                            print(line_string)
+
+                        case "out":
+                            report_statement = '' \
+                            'Outgoing neighbours:'
+                            
+                            print(report_statement)
+                            
+                            outgoing_ids = [neighbour.get_start_id() for neighbour in outgoing]
+                            outgoing_neighbours = [graph.get_node_from_id(id) for id in outgoing_ids]
+                            filtered_outgoing_neighbours = [neighbour for neighbour in outgoing_neighbours if neighbour]
+
+                            line_string = ''
+                            for neighbour in filtered_outgoing_neighbours:
+                                neighbour_string = f"{neighbour.get_name()} ({neighbour.get_id()}), "
+
+                                if len(line_string) + len(neighbour_string) < 80:
+                                    line_string += neighbour_string
+
+                                else:
+                                    print(line_string)
+                                    line_string = neighbour_string
+
+                            print(line_string)
+    
+
+                        case _:
+                            if user_action != "":
+                                warning_statement = '' \
+                                f'Found user input \"{user_action}\" to not match [in|out].\n' \
+                                'Skipping'
+
+                                print(warning_statement)
+
+                case "2":
+                    continue
+
+                case "3":
+                    continue
+
+                case "4":
+                    report_statement = '' \
+                    'Ending graph traversal'
+
+                    print(report_statement)
+                    break
+            
+        
+        return None
+    
+
 def main() -> int:
     return 0
 
