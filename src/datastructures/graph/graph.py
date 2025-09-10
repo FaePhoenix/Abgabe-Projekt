@@ -149,7 +149,7 @@ class Graph:
 
         return [self.__nodes.get(neighbour_id) for neighbour_id in neighbour_ids]
     
-    def get_node_with_highest_in(self) -> Node | None:
+    def get_node_with_highest_in(self) -> Node:
         """
         Returns the node with the highest amount of incoming edges
         """
@@ -161,9 +161,13 @@ class Graph:
             if incoming > max_in:
                 max_in = incoming
                 max_id = node.get_id()
-        return self.__nodes.get(max_id)
+
+        max_in_node = self.__nodes.get(max_id)
+        assert max_in_node
+
+        return max_in_node
     
-    def get_node_with_highest_out(self) -> Node | None:
+    def get_node_with_highest_out(self) -> Node:
         """
         Returns the node with the highest amount of outgoing edges
         """
@@ -175,7 +179,11 @@ class Graph:
             if outgoing > max_out:
                 max_out = outgoing
                 max_id = node.get_id()
-        return self.__nodes.get(max_id)
+
+        max_out_node = self.__nodes.get(max_id)
+        assert max_out_node
+
+        return max_out_node
     
     def get_node_from_id(self, id:int) -> Node | None:
         """
@@ -214,7 +222,7 @@ class Graph:
         name : str
             The name of the node which id is being looked for
         """
-        
+
         for node in self.__nodes.values():
             if node.get_name() == name:
                 return node.get_id()
