@@ -948,7 +948,33 @@ class Parser:
                     print(report_statement)
 
                 case "3":
-                    continue
+                    report_statement = '' \
+                    'Changing focus to a new node.\n' \
+                    'Please enter the id of the node you want to switch to:'
+
+                    user_reponse = input(report_statement)
+
+                    if not user_reponse.isnumeric():
+                        warning_statement = '' \
+                        f'Given id \"{user_reponse}\" is not a number and can therefore not be a id.\n' \
+                        'Not changing node focus'
+
+                        print(warning_statement)
+                        continue
+
+                    user_given_id = int(user_reponse)
+
+                    node = graph.get_node_from_id(user_given_id)
+
+                    if not node:
+                        warning_statement = '' \
+                        f'Given id \"{user_given_id}\" is not a valid id for the active graph.\n' \
+                        'Not changing node focus'
+
+                        print(warning_statement)
+                        continue
+
+                    current_node = node
 
                 case "4":
                     report_statement = '' \
