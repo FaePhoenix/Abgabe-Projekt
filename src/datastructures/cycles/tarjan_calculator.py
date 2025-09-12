@@ -109,6 +109,8 @@ class TarjanCalculator:
 
         for child_id in node.get_children():
             child = self.__graph.get_node_from_id(child_id)
+            assert child
+            
             if child.get_index() == -1:
                 self.__strong_connect(child)
                 node.set_lowlink(min(node.get_lowlink(), child.get_lowlink()))

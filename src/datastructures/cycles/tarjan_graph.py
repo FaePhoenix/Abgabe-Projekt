@@ -41,7 +41,7 @@ class TarjanGraph:
 
         return set(self.__nodes.values())
     
-    def get_node_from_id(self, id:int) -> TarjanNode:
+    def get_node_from_id(self, id:int) -> TarjanNode | None:
         """
         Returns the node associated with the given ID
 
