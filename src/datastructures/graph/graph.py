@@ -89,11 +89,11 @@ class Graph:
             end_id = edge.get_end_id()
 
             start = self.get_node_from_id(start_id)
-            assert isinstance(start, Node)
+            assert start
             start.add_outgoing(edge)
 
             end = self.get_node_from_id(end_id)
-            assert isinstance(end, Node)
+            assert end
             end.add_incoming(edge)
 
         return None

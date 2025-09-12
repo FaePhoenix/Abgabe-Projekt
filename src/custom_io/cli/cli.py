@@ -916,10 +916,10 @@ class Parser:
 
         match user_action:
             case "in":
-                self.__get_edge_information(graph, incoming, 'Incoming neighbours:')
+                self.__get_incoming_information(graph, incoming)
 
             case "out":
-                self.__get_edge_information(graph, outgoing, 'Outgoing neighbours:')    
+                self.__get_outgoing_information(graph, outgoing)    
 
             case _:
                 if user_action != "":
@@ -931,8 +931,35 @@ class Parser:
 
         return None
 
-    def __get_edge_information(self, graph:Graph, edges:list[Edge], report_statement:str) ->  None:
-                            
+    def __get_outgoing_information(self, graph:Graph, edges:list[Edge]) ->  None:
+        report_statement = '' \
+        'Outgoing neighbours:'
+
+        print(report_statement)
+
+        neighbour_ids = [neighbour.get_end_id() for neighbour in edges]
+        neighbours = [graph.get_node_from_id(id) for id in neighbour_ids]
+        filtered_neighbours = [neighbour for neighbour in neighbours if neighbour]
+
+        line_string = ''
+        for neighbour in filtered_neighbours:
+            neighbour_string = f"{neighbour.get_name()} ({neighbour.get_id()}), "
+
+            if len(line_string) + len(neighbour_string) < 80:
+                line_string += neighbour_string
+
+            else:
+                print(line_string)
+                line_string = neighbour_string
+
+        print(line_string)
+
+        return None
+    
+    def __get_incoming_information(self, graph:Graph, edges:list[Edge]) ->  None:
+        report_statement = '' \
+        'Incoming neighbours:'
+
         print(report_statement)
 
         neighbour_ids = [neighbour.get_start_id() for neighbour in edges]
@@ -953,6 +980,7 @@ class Parser:
         print(line_string)
 
         return None
+
 
     def __change_focus(self, graph:Graph) -> Node | None:
         report_statement = '' \
