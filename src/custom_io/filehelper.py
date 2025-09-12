@@ -100,7 +100,7 @@ class FileHelper:
         while os.path.exists(full_file_name):
             warning_statement = '' \
             f'File \"{file_name}\" already exists in the txtfiles-folder.\n' \
-            'Please specify if you want to (o) overwrite the existing file or if u want to (r) rename the new file.'
+            'Please specify if you want to (o) overwrite the existing file, (r) to rename the new file or (s) to skip saving graph.'
 
             user_repsonse = input(warning_statement)
 
@@ -115,6 +115,14 @@ class FileHelper:
 
                     file_name = input(report_statement)
                     full_file_name = self.__directory + "txtfiles\\" + file_name
+
+                case "s":
+                    report_statement = '' \
+                    'Skipping saving of graph'
+
+                    print(report_statement)
+
+                    return None
 
                 case _:
                     warning_statement = '' \

@@ -1,12 +1,12 @@
-import re
 from datastructures.graph.graph import Graph
+from datastructures.graph.node import Node
+from datastructures.graph.edge import Edge
 from custom_io.filehelper import FileHelper
 from logic.graphbuilder import GraphBuilder
 from custom_io.visualizer.visualizer import Visualizer
 from custom_io.visualizer.fancy_visualizer import FancyVisualizer
 import os
-
-from src.datastructures.graph.node import Node
+import re
 
 
 class Parser:
@@ -677,7 +677,7 @@ class Parser:
         
         user_width, user_height = self.__get_dyn_vis_size()
         settings["width"] = user_width
-        settings["heigth"] = user_height
+        settings["height"] = user_height
 
         user_bg_color = self.__get_dyn_vis_bgcolor()
         settings["bgcolor"] = user_bg_color
@@ -690,7 +690,7 @@ class Parser:
     def __get_dyn_vis_nodecolor(self) -> str:
         nodecoloring_statement = '' \
         'Please enter a color hexcode for the nodes or skip to accept the default\n' \
-        'Default is: 97c2fc (light blue)'
+        'Default is: 97c2fc (light blue)\n'
 
         user_node_color = input(nodecoloring_statement)
 
@@ -716,7 +716,7 @@ class Parser:
     def __get_dyn_vis_bgcolor(self) -> str:
         bgcoloring_statement = '' \
         'Please enter a color hexcode for the background or skip to accept the default\n' \
-        'Default is: 00052E (dark blue)'
+        'Default is: 00052E (dark blue)\n'
 
         user_bg_color = input(bgcoloring_statement)
 
@@ -745,7 +745,7 @@ class Parser:
         sizing_statment = '' \
         'Please enter a tuple of pixel amount to specify the width and heigth or skip to accept default\n' \
         'Valid values are integers between 100 and 10.000\n' \
-        'Default is: 1500,1500'
+        'Default is: 1500,1500\n'
 
         user_size = input(sizing_statment)
 
@@ -836,6 +836,13 @@ class Parser:
         current_node = graph.get_node_from_id(root_id)
         assert current_node
 
+        self.__run_traverse(graph, root_name, root_id, current_node)
+            
+        
+        return None
+
+    def __run_traverse(self, graph:Graph, root_name:str, root_id:int, current_node:Node):
+
         while True:
             report_statement = '' \
             f'Currently focused on the node: {current_node.get_name()} ({current_node.get_id()})\n' \
@@ -856,85 +863,7 @@ class Parser:
 
             match user_choice:
                 case "1":
-                    node_name = current_node.get_name()
-                    node_id = current_node.get_id()
-                    node_depth = current_node.get_depth()
-
-                    incoming = current_node.get_incoming()
-                    outgoing = current_node.get_outgoing()
-
-                    keywords = current_node.get_keywords()
-                    report_statement = '' \
-                    f'Node {node_name} ({node_id})\n' \
-                    f'found at a distance of {node_depth} to the root of the graph.\n' \
-                    f'{len(incoming + outgoing)} neighbours found ({len(incoming)} incoming and {len(outgoing)} outgoing)\n' \
-                    f'Important keywords:'
-                    
-                    print(report_statement)
-
-                    for keyword in keywords:
-                        print(f' - {keyword}')
-
-                    report_statement = '' \
-                    'To view found neighbours please select (in) incoming or (out) outgoing or skip to skip'
-
-                    user_action = input(report_statement)
-
-                    match user_action:
-                        case "in":
-                            report_statement = '' \
-                            'Incoming neighbours:'
-                            
-                            print(report_statement)
-
-                            incoming_ids = [neighbour.get_start_id() for neighbour in incoming]
-                            incoming_neighbours = [graph.get_node_from_id(id) for id in incoming_ids]
-                            filtered_incoming_neighbours = [neighbour for neighbour in incoming_neighbours if neighbour]
-
-                            line_string = ''
-                            for neighbour in filtered_incoming_neighbours:
-                                neighbour_string = f"{neighbour.get_name()} ({neighbour.get_id()}), "
-
-                                if len(line_string) + len(neighbour_string) < 80:
-                                    line_string += neighbour_string
-
-                                else:
-                                    print(line_string)
-                                    line_string = neighbour_string
-
-                            print(line_string)
-
-                        case "out":
-                            report_statement = '' \
-                            'Outgoing neighbours:'
-                            
-                            print(report_statement)
-                            
-                            outgoing_ids = [neighbour.get_start_id() for neighbour in outgoing]
-                            outgoing_neighbours = [graph.get_node_from_id(id) for id in outgoing_ids]
-                            filtered_outgoing_neighbours = [neighbour for neighbour in outgoing_neighbours if neighbour]
-
-                            line_string = ''
-                            for neighbour in filtered_outgoing_neighbours:
-                                neighbour_string = f"{neighbour.get_name()} ({neighbour.get_id()}), "
-
-                                if len(line_string) + len(neighbour_string) < 80:
-                                    line_string += neighbour_string
-
-                                else:
-                                    print(line_string)
-                                    line_string = neighbour_string
-
-                            print(line_string)
-    
-
-                        case _:
-                            if user_action != "":
-                                warning_statement = '' \
-                                f'Found user input \"{user_action}\" to not match [in|out].\n' \
-                                'Skipping'
-
-                                print(warning_statement)
+                    self.__get_further_info(graph, current_node)
 
                 case "2":
                     highest_in = graph.get_node_with_highest_in()
@@ -942,39 +871,16 @@ class Parser:
 
                     report_statement = '' \
                     f'Graph root: {root_name} ({root_id})\n' \
-                    f'Highest_incoming: {highest_in.get_name()} ({highest_in.get_id()})\n' \
-                    f'Highest outgoing: {highest_out.get_name()} ({highest_out.get_id()})'
+                    f'Highest_incoming: {highest_in.get_name()} ({highest_in.get_id()}) with {len(highest_in.get_incoming())} incoming\n' \
+                    f'Highest outgoing: {highest_out.get_name()} ({highest_out.get_id()}) with {len(highest_in.get_outgoing())} incoming'
 
                     print(report_statement)
 
                 case "3":
-                    report_statement = '' \
-                    'Changing focus to a new node.\n' \
-                    'Please enter the id of the node you want to switch to:'
-
-                    user_reponse = input(report_statement)
-
-                    if not user_reponse.isnumeric():
-                        warning_statement = '' \
-                        f'Given id \"{user_reponse}\" is not a number and can therefore not be a id.\n' \
-                        'Not changing node focus'
-
-                        print(warning_statement)
-                        continue
-
-                    user_given_id = int(user_reponse)
-
-                    node = graph.get_node_from_id(user_given_id)
-
-                    if not node:
-                        warning_statement = '' \
-                        f'Given id \"{user_given_id}\" is not a valid id for the active graph.\n' \
-                        'Not changing node focus'
-
-                        print(warning_statement)
-                        continue
-
-                    current_node = node
+                    new_focus = self.__change_focus(graph)
+                    
+                    if new_focus:
+                        current_node = new_focus
 
                 case "4":
                     report_statement = '' \
@@ -982,9 +888,100 @@ class Parser:
 
                     print(report_statement)
                     break
-            
-        
+
+    def __get_further_info(self, graph:Graph, current_node:Node) -> None:
+        node_name = current_node.get_name()
+        node_id = current_node.get_id()
+        node_depth = current_node.get_depth()
+
+        incoming = current_node.get_incoming()
+        outgoing = current_node.get_outgoing()
+
+        keywords = current_node.get_keywords()
+        report_statement = '' \
+                    f'Node {node_name} ({node_id})\n' \
+                    f'found at a distance of {node_depth} to the root of the graph.\n' \
+                    f'{len(incoming + outgoing)} neighbours found ({len(incoming)} incoming and {len(outgoing)} outgoing)\n' \
+                    f'Important keywords:'
+                    
+        print(report_statement)
+
+        for keyword in keywords:
+            print(f' - {keyword}')
+
+        report_statement = '' \
+                    'To view found neighbours please select (in) incoming or (out) outgoing or skip to skip\n'
+
+        user_action = input(report_statement)
+
+        match user_action:
+            case "in":
+                self.__get_edge_information(graph, incoming, 'Incoming neighbours:')
+
+            case "out":
+                self.__get_edge_information(graph, outgoing, 'Outgoing neighbours:')    
+
+            case _:
+                if user_action != "":
+                    warning_statement = '' \
+                                f'Found user input \"{user_action}\" to not match [in|out].\n' \
+                                'Skipping'
+
+                    print(warning_statement)
+
         return None
+
+    def __get_edge_information(self, graph:Graph, edges:list[Edge], report_statement:str) ->  None:
+                            
+        print(report_statement)
+
+        neighbour_ids = [neighbour.get_start_id() for neighbour in edges]
+        neighbours = [graph.get_node_from_id(id) for id in neighbour_ids]
+        filtered_neighbours = [neighbour for neighbour in neighbours if neighbour]
+
+        line_string = ''
+        for neighbour in filtered_neighbours:
+            neighbour_string = f"{neighbour.get_name()} ({neighbour.get_id()}), "
+
+            if len(line_string) + len(neighbour_string) < 80:
+                line_string += neighbour_string
+
+            else:
+                print(line_string)
+                line_string = neighbour_string
+
+        print(line_string)
+
+        return None
+
+    def __change_focus(self, graph:Graph) -> Node | None:
+        report_statement = '' \
+        'Changing focus to a new node.\n' \
+        'Please enter the id of the node you want to switch to:\n'
+
+        user_reponse = input(report_statement)
+
+        if not user_reponse.isnumeric():
+            warning_statement = '' \
+            f'Given id \"{user_reponse}\" is not a number and can therefore not be a id.\n' \
+            'Not changing node focus'
+
+            print(warning_statement)
+            return None
+
+        user_given_id = int(user_reponse)
+
+        node = graph.get_node_from_id(user_given_id)
+
+        if not node:
+            warning_statement = '' \
+            f'Given id \"{user_given_id}\" is not a valid id for the active graph.\n' \
+            'Not changing node focus'
+
+            print(warning_statement)
+            return None
+        
+        return node
     
 
 def main() -> int:
