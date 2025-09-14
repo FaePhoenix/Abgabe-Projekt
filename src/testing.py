@@ -1,11 +1,13 @@
 from custom_io.filehelper import FileHelper
-from datastructures.cycles.tarjan_calculator import TarjanCalculator
+from datastructures.cycles.circle_manager import CircleManager
 import custom_io.visualizer.fancy_visualizer as vis
 import os
 
+
+
 def main() -> int:
     #Just used for testing out new components and how they work together with old components
-    fancy_vis_test()
+    cycle_testing()
     return 0
 
 def fancy_vis_test() -> None:
@@ -22,15 +24,15 @@ def filepath_testing() -> None:
 
 def cycle_testing() -> None:
     helper = FileHelper()
-    graphfile = r"C:\Users\fae\Documents\Uni\Semester6\Skriptsprachen\Abgabe-Projekt\txtfiles\graph500.txt"
+    graphfile = "Linux-2000.txt"
     graph = helper.read_graph_from_file(graphfile, False)
 
     if not graph:
         print("Failed to read graph")
         return None
 
-    calc = TarjanCalculator()
-    cycles = calc.find_strongly_connected_components(graph)
+    calc = CircleManager()
+    cycles = calc.get_directed_cycles(graph, True, 1000)
 
     for cycle in cycles:
         print(cycle)

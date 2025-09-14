@@ -39,38 +39,9 @@ class TarjanCalculator:
         self.__sccs:list[list[int]]
         self.__graph:TarjanGraph
         return None
-    
-    def find_strongly_connected_components(self, graph:Graph) -> set[Cycle]:
-        """
-        Converts the given graph into the simplified form of a TarjanGraph, executes the Tarjan algorithm and returns the found sccs
+     
 
-        Parameters:
-        -----------
-        graph : Graph
-            The graph to be searched for strongly connected components
-        """
-
-        tarjan_nodes = set()
-
-        for node in graph.get_nodes():
-            children = [edge.get_end_id() for edge in node.get_outgoing()]
-            tarjan_node = TarjanNode(node.get_id(), children)
-            tarjan_nodes.add(tarjan_node)
-
-        tarjan_graph = TarjanGraph(tarjan_nodes)
-
-        self.__calculate_sccs(tarjan_graph)
-
-        cycles = set()
-
-        for scc in self.__sccs:
-            if len(scc) > 1:
-                cycle = Cycle(scc)
-                cycles.add(cycle)
-        return cycles
-    
-
-    def __calculate_sccs(self, graph:TarjanGraph) -> None:
+    def calculate_sccs(self, graph:TarjanGraph, verbose:bool) -> list[list[int]]:
         """
         The Tarjan algorithm
 
@@ -87,11 +58,17 @@ class TarjanCalculator:
 
         for node in graph.get_nodes():
             if node.get_index() == -1:
-                self.__strong_connect(node)
+                self.__strong_connect(node, verbose)
 
-        return None
+        if verbose:
+            report_statement = '' \
+            'Building components done'
+
+            print(report_statement)
+
+        return self.__sccs
     
-    def __strong_connect(self, node:TarjanNode) -> None:
+    def __strong_connect(self, node:TarjanNode, verbose:bool) -> None:
         """
         Recursive function using a depth search to traverse the graph and updating __lowlink of the nodes
 
@@ -100,6 +77,11 @@ class TarjanCalculator:
         node : TarjanNode
             The node that is currently being epxlored
         """
+        if verbose:
+            report_statement = '' \
+            f'Adding {node.get_id()} to the stack'
+
+            print(report_statement)
 
         node.set_index(self.__index)
         node.set_lowlink(self.__index)
@@ -112,13 +94,20 @@ class TarjanCalculator:
             assert child
             
             if child.get_index() == -1:
-                self.__strong_connect(child)
+                self.__strong_connect(child, verbose)
                 node.set_lowlink(min(node.get_lowlink(), child.get_lowlink()))
 
             elif child_id in self.__stack:
                 node.set_lowlink(min(node.get_lowlink(), child.get_index()))
 
         if node.get_lowlink() == node.get_index():
+            if verbose:
+                report_statement = '' \
+                'Found strongly connected component.\n' \
+                'Building from stack'
+
+                print(report_statement)
+
             self.__build_scc_from_stack(node.get_id())
         return None
     
