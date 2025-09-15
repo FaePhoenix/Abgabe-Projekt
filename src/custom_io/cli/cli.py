@@ -1,12 +1,17 @@
+from turtle import circle
 from datastructures.graph.graph import Graph
 from datastructures.graph.node import Node
 from datastructures.graph.edge import Edge
+from datastructures.cycles.circle_manager import CircleManager
 from custom_io.filehelper import FileHelper
 from logic.graphbuilder import GraphBuilder
 from custom_io.visualizer.visualizer import Visualizer
 from custom_io.visualizer.fancy_visualizer import FancyVisualizer
+
 import os
 import re
+
+from src.datastructures.cycles import circle_manager
 
 
 class Parser:
@@ -51,7 +56,8 @@ class Parser:
                 case "build":
                     self.__build(options)
 
-                case "circles":
+                case "cycles":
+                    self.__cycles(options)
                     continue
 
                 case "traverse":
@@ -135,7 +141,7 @@ class Parser:
         'build: Create a new active graph.\n' \
         'visualize: Create a visualization of an active graph\n' \
         'traverse: Get further information about an active graph.\n' \
-        'circles: Detect circular links in an active graph.\n' \
+        'cycles: Detect circular links in an active graph.\n' \
         'exit: Exit this programm.'
 
         print(help_statement)
@@ -274,35 +280,14 @@ class Parser:
             print(help_statement)
             return None
         
-        graph_option_set = "-g" in valid_user_options.keys()
-        if not graph_option_set:
-            failure_statement = '' \
-            'The option \"-g\" is manditory and was not set.\n' \
-            'Please use \"-g [graph_name]\" to select a graph to save'
-
-            print(failure_statement)
+        graph = self.__check_graph_option(valid_user_options)
+        if not graph:
             return None
         
+        root_name = graph.get_root()
+
         if not self.__warn_options(invalid_user_options):
             return None
-        
-        wrapped_graph_name = valid_user_options.get("-g")
-        assert wrapped_graph_name
-        graph_name = wrapped_graph_name[0]
-
-        graph_exists = graph_name in self.graphs.keys()
-        if not graph_exists:
-            failure_statement = '' \
-            f'Given the graph name: {graph_name}\n' \
-            'This is not the name of any active graph.\n' \
-            'Please give the name of an active graph.\n' \
-            'View these by using the \"view\" command'
-
-            print(failure_statement)
-            return None
-
-        graph_to_save = self.graphs.get(graph_name)
-        assert graph_to_save
 
         verbose = "-v" in valid_user_options
         custom_file_name = "-n" in valid_user_options
@@ -312,10 +297,19 @@ class Parser:
             assert wrapped_file_name
             file_name = wrapped_file_name[0]
         else:
-            file_name = f"{graph_name}.txt"
+            file_name = f"{root_name}.txt"
         
         try:
-            self.filehelper.write_graph_to_file(graph_to_save, file_name, verbose)
+            self.filehelper.write_graph_to_file(graph, file_name, verbose)
+
+            success_statement = '' \
+            'Done writing to file to [projectfolder]\\txtfiles\\'
+        
+            if verbose:
+                success_statement += f'\nLocated at {os.getcwd() + '\\txtfiles\\'+ file_name}'
+        
+            print(success_statement)
+
         except Exception as e:
             failure_statement = '' \
             'Saving graph to file failed.\n' \
@@ -323,14 +317,6 @@ class Parser:
             
             print(failure_statement + str(e))
             return None
-
-        success_statement = '' \
-        'Done writing to file to [projectfolder]\\txtfiles\\'
-        
-        if verbose:
-            success_statement += f'\nLocated at {os.getcwd() + '\\txtfiles\\'+ file_name}'
-        
-        print(success_statement)
 
         return None
     
@@ -525,14 +511,6 @@ class Parser:
 
             print(help_statement)
             return None
-
-        if "-g" not in valid_user_options.keys():
-            failure_statement = '' \
-            'No graphname for visualization given. Can\'t continue\n' \
-            'Please supply the name of an active graph using: \"-g [graphname]\"'
-
-            print(failure_statement)
-            return None
         
         if "-t" not in valid_user_options.keys():
             failure_statement = '' \
@@ -546,21 +524,9 @@ class Parser:
         if not self.__warn_options(invalid_user_options):
             return None         
 
-        wrapped_graph_name = valid_user_options.get("-g")
-        assert wrapped_graph_name
-        graph_name = wrapped_graph_name[0]
-
-        if graph_name not in self.graphs.keys():
-            failure_statement = '' \
-            f'Provided graph {graph_name} is not an active graph.\n' \
-            'For an overview of active graphs use \"view\"\n' \
-            'Can\'t continue visualization'
-
-            print(failure_statement)
+        graph = self.__check_graph_option(valid_user_options)
+        if not graph:
             return None
-        
-        graph = self.graphs.get(graph_name)
-        assert graph
 
         wrapped_visualization_type = valid_user_options.get("-t")
         assert wrapped_visualization_type
@@ -799,32 +765,9 @@ class Parser:
             print(help_statement)
             return None
         
-        graph_option_set = "-g" in valid_user_options.keys()
-        if not graph_option_set:
-            failure_statement = '' \
-            'The option \"-g\" is manditory and was not set.\n' \
-            'Please use \"-g [graph_name]\" to select a graph to save'
-
-            print(failure_statement)
+        graph = self.__check_graph_option(valid_user_options)
+        if not graph:
             return None
-        
-        wrapped_graph_name = valid_user_options.get("-g")
-        assert wrapped_graph_name
-        graph_name = wrapped_graph_name[0]
-
-        graph_exists = graph_name in self.graphs.keys()
-        if not graph_exists:
-            failure_statement = '' \
-            f'Given the graph name: {graph_name}\n' \
-            'This is not the name of any active graph.\n' \
-            'Please give the name of an active graph.\n' \
-            'View these by using the \"view\" command'
-
-            print(failure_statement)
-            return None
-
-        graph = self.graphs.get(graph_name)
-        assert graph
         
         if not self.__warn_options(invalid_user_options):
             return None
@@ -838,7 +781,6 @@ class Parser:
 
         self.__run_traverse(graph, root_name, root_id, current_node)
             
-        
         return None
 
     def __run_traverse(self, graph:Graph, root_name:str, root_id:int, current_node:Node):
@@ -981,7 +923,6 @@ class Parser:
 
         return None
 
-
     def __change_focus(self, graph:Graph) -> Node | None:
         report_statement = '' \
         'Changing focus to a new node.\n' \
@@ -1010,6 +951,126 @@ class Parser:
             return None
         
         return node
+    
+    def __cycles(self, options:list[str]|None) -> None:
+        available_options = {"-h" : 0, "-g" : 1, "-t" : 1, "-v" : 0, "-m" : 1}
+        valid_user_options, invalid_user_options = self.__parse_options(options, available_options)
+
+        if "-h" in valid_user_options.keys():
+            help_statement = ''\
+            'This command is used to find cycles in an active graph.\n' \
+            'Mandatory Options:\n' \
+            ' -g [graphname] : The name of the graph that you want to traverse\n' \
+            ' -t [d|u] : If the cycles should be (d) directed or (u) undirected\n'
+            'Available Options:\n' \
+            ' -h : help option, to display further information. Disables functionality (Currently used)\n' \
+            ' -v : verbose output to get further information\n' \
+            ' -m [num] : maximum cycle size to search for (Performance option)'
+
+            print(help_statement)
+            return None
+        
+        graph = self.__check_graph_option(valid_user_options)
+        if not graph:
+            return None
+
+        cycle_type_set = "-t" in valid_user_options.keys()
+        if not cycle_type_set:
+            failure_statement =  '' \
+            'The option \"-t\" is manditory and was not set.\n' \
+            'Please use \"-t [d|u]\" to select a cycle type to search for.'
+
+            print(failure_statement)
+            return None
+        
+        wrapped_cycle_type = valid_user_options.get("-t")
+        assert wrapped_cycle_type
+        cycle_type = wrapped_cycle_type[0]
+
+        if cycle_type not in ["d", "u"]:
+            failure_statement = '' \
+            f'Given the cycle type: {cycle_type}\n' \
+            'This is neither "d" nor "u" and therefore invalid.\n' \
+            'Please only use (d) directed or (u) undirected.'
+            
+            print(failure_statement)
+            return None
+        
+        if not self.__warn_options(invalid_user_options):
+            return None
+        
+        verbose = "-v" in valid_user_options.keys()
+
+        max_cycle_size_given = "-m" in valid_user_options.keys()
+
+        if max_cycle_size_given:
+            wrapped_cycle_size = valid_user_options.get("-m")
+            assert wrapped_cycle_size
+            max_cycle_size = wrapped_cycle_size[0]
+
+            if not max_cycle_size.isnumeric():
+                failure_statement = '' \
+                ''
+
+                print(failure_statement)
+                return None
+            
+            max_cycle_size = int(max_cycle_size)
+
+            if max_cycle_size < 3 or max_cycle_size > 10000:
+                failure_statement = '' \
+                ''
+
+                print(failure_statement)
+                return None
+        else:
+            max_cycle_size = None
+
+        circle_manager = CircleManager()
+
+        match cycle_type:
+            case "d":
+                cycles = circle_manager.get_directed_cycles(graph, verbose, max_cycle_size)
+
+            case "u":
+                cycles = circle_manager.get_undirected_cycles(graph, verbose, max_cycle_size) # TODO implement
+        
+        #TODO do stuff w/ cycles
+
+        return None
+    
+        
+
+    def __check_graph_option(self, valid_user_options:dict[str, list[str]]) -> Graph|None:
+
+        graph_option_set = "-g" in valid_user_options.keys()
+
+        if not graph_option_set:
+            failure_statement = '' \
+            'The option \"-g\" is manditory and was not set.\n' \
+            'Please use \"-g [graph_name]\" to select a graph to save'
+
+            print(failure_statement)
+            return None
+        
+        wrapped_graph_name = valid_user_options.get("-g")
+        assert wrapped_graph_name
+        graph_name = wrapped_graph_name[0]
+
+        graph_exists = graph_name in self.graphs.keys()
+        if not graph_exists:
+            failure_statement = '' \
+            f'Given the graph name: {graph_name}\n' \
+            'This is not the name of any active graph.\n' \
+            'Please give the name of an active graph.\n' \
+            'View these by using the \"view\" command'
+
+            print(failure_statement)
+            return None
+        
+        graph = self.graphs.get(graph_name)
+
+        return graph
     
 
 def main() -> int:

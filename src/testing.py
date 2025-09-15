@@ -4,7 +4,6 @@ import custom_io.visualizer.fancy_visualizer as vis
 import os
 
 
-
 def main() -> int:
     #Just used for testing out new components and how they work together with old components
     cycle_testing()
