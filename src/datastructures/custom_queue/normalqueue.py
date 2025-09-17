@@ -37,7 +37,9 @@ class NormalQueue(WikiGraphQueue):
 
         next_entry = self.entries.pop(0)
         self.blacklist.add(next_entry.get_name())
-        
+    
+        self.entries = [entry for entry in self.entries if entry.get_name() != next_entry.get_name()]
+
         return next_entry
 
 

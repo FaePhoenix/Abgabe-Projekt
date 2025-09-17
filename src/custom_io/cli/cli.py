@@ -1,17 +1,17 @@
-from turtle import circle
 from datastructures.graph.graph import Graph
 from datastructures.graph.node import Node
 from datastructures.graph.edge import Edge
 from datastructures.cycles.circle_manager import CircleManager
+from datastructures.cycles.cycle import Cycle
+
 from custom_io.filehelper import FileHelper
-from logic.graphbuilder import GraphBuilder
 from custom_io.visualizer.visualizer import Visualizer
 from custom_io.visualizer.fancy_visualizer import FancyVisualizer
 
+from logic.graphbuilder import GraphBuilder
+
 import os
 import re
-
-from src.datastructures.cycles import circle_manager
 
 
 class Parser:
@@ -297,7 +297,7 @@ class Parser:
             assert wrapped_file_name
             file_name = wrapped_file_name[0]
         else:
-            file_name = f"{root_name}.txt"
+            file_name = f"{root_name}-{len(graph.get_nodes())}.txt"
         
         try:
             self.filehelper.write_graph_to_file(graph, file_name, verbose)
@@ -321,7 +321,7 @@ class Parser:
         return None
     
     def __build(self, options:list[str]|None) -> None:
-        available_options = {"-h" : 0, "-v" : 0, "-s" : 1, "-d" : 1, "-r" : 1, "-q" : 1}
+        available_options = {"-h" : 0, "-v" : 0, "-k" : 1, "-d" : 1, "-r" : 1, "-q" : 1}
         valid_user_options, invalid_user_options = self.__parse_options(options, available_options)
 
         if "-h" in valid_user_options.keys():
@@ -333,7 +333,7 @@ class Parser:
             'Available Options:\n' \
             ' -h : help option, to display further information. Disables functionality (Currently used)\n' \
             ' -v : verbose logging to get further information about the graph saving\n' \
-            ' -s [num] : the amount of articles to be included. (Default is 500)\n' \
+            ' -k [num] : the amount of articles to be included. (Default is 500)\n' \
             ' -d [num] : the maximal depth or distance to the original article that should be included. (Default is 10)'
 
             print(help_statement)
@@ -425,9 +425,9 @@ class Parser:
         return None
     
     def __get_graph_size(self, valid_user_options:dict[str, list[str]]) -> int:
-        custom_size_used = "-s" in valid_user_options.keys()
+        custom_size_used = "-k" in valid_user_options.keys()
         if custom_size_used:
-            user_size_option = valid_user_options.get("-s")
+            user_size_option = valid_user_options.get("-k")
             assert user_size_option
             user_size = user_size_option[0]
 
@@ -965,7 +965,8 @@ class Parser:
             'Available Options:\n' \
             ' -h : help option, to display further information. Disables functionality (Currently used)\n' \
             ' -v : verbose output to get further information\n' \
-            ' -m [num] : maximum cycle size to search for (Performance option)'
+            ' -m [num] : maximum cycle size to search for (Values over 1000 may take longer)\n\n' \
+            'Warning: Very big graphs may take longer to find cycles and undirected cycles take significatnly longer to find' 
 
             print(help_statement)
             return None
@@ -1033,13 +1034,27 @@ class Parser:
                 cycles = circle_manager.get_directed_cycles(graph, verbose, max_cycle_size)
 
             case "u":
-                cycles = circle_manager.get_undirected_cycles(graph, verbose, max_cycle_size) # TODO implement
+                cycles = circle_manager.get_undirected_cycles(graph, verbose, max_cycle_size)
+
+            case _:
+                #Unreachable but SonarQube throws a hissy fit without
+                cycles = set()
+
         
-        #TODO do stuff w/ cycles
+        self.__do_stuff_with_cycles(graph, cycles)
 
         return None
     
-        
+    def __do_stuff_with_cycles(self, graph:Graph, cycles:set[Cycle]) -> None:
+        report_statement =  '' \
+        f'Found {len(cycles)} cycles\n' \
+        'Saving to file (see txtfiles)'
+
+        fixed_cycles = list(cycles)
+        print(report_statement)
+        self.filehelper.write_cycles_to_file(graph, fixed_cycles)
+
+        return None   
 
     def __check_graph_option(self, valid_user_options:dict[str, list[str]]) -> Graph|None:
 

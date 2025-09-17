@@ -69,18 +69,11 @@ class Graph:
             The edges of the graph
         """
         self.__root:str = root
-        self.__nodes:dict[int, Node] = { node.get_id() : node for node in nodes}
+        self.__nodes:dict[int, Node] = {node.get_id() : node for node in nodes}
         self.__edges:dict[tuple[int, int], Edge] = {(edge.get_start_id(), edge.get_end_id()) : edge for edge in edges}
         self.__extend_nodes()
         return None
-    
-    
-    def calculate_cycles(self) -> set[Cycle]: # TODO
-        """
-        Calculates all directed Cycles in the graph
-        """
-
-        return set()   
+     
 
     def __extend_nodes(self) -> None:
 

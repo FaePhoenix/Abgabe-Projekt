@@ -1,7 +1,11 @@
+from datastructures.cycles.cycle import Cycle
 from datastructures.graph.graph import Graph
 from datastructures.graph.node import Node
 from datastructures.graph.edge import Edge
+
 import os
+
+
 
 
 class FileHelper:
@@ -25,6 +29,33 @@ class FileHelper:
         project_folder = "\\".join(disected_file_position[:len(disected_file_position) - 3])
         self.__directory = project_folder + "\\"
         self.__setup_folders()
+        return None
+    
+    def write_cycles_to_file(self, origin_graph:Graph, cycles:list[Cycle]) -> None:
+
+        cycle_lines = []
+        for idx, cycle in enumerate(cycles):
+            cycle_line = u""
+            
+            cycle_line += str(idx) + "\t"
+
+            path = cycle.get_path()
+
+            named_path = [origin_graph.get_node_name(id) for id in path]
+            filtered_named_path = [name for name in named_path if name]
+
+            cycle_in_text = " -> ".join(filtered_named_path)
+
+            cycle_line += cycle_in_text
+            
+            cycle_lines.append(cycle_line)
+
+        to_write = "\n".join(cycle_lines)
+
+        file_name = f"{origin_graph.get_root()}-{len(origin_graph.get_nodes())}-cycles.txt"
+
+        self.__write_to_file(file_name, to_write)
+
         return None
     
     def write_graph_to_file(self, graph:Graph, file_name:str, verbose:bool) -> None:
@@ -100,7 +131,7 @@ class FileHelper:
         while os.path.exists(full_file_name):
             warning_statement = '' \
             f'File \"{file_name}\" already exists in the txtfiles-folder.\n' \
-            'Please specify if you want to (o) overwrite the existing file, (r) to rename the new file or (s) to skip saving graph.'
+            'Please specify if you want to (o) overwrite the existing file, (r) to rename the new file or (s) to skip saving graph.\n'
 
             user_repsonse = input(warning_statement)
 

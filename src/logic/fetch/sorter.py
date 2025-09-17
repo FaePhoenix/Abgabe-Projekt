@@ -1,3 +1,4 @@
+import re
 from logic.fetch.requester import Requester
 from collections import Counter
 from typing import Any
@@ -15,6 +16,7 @@ class Sorter:
 
 
     def __init__(self) -> None:
+        self.requester = Requester()
         return None
 
     
@@ -28,8 +30,7 @@ class Sorter:
             The name of the article to fetch
         """
 
-        requester = Requester()
-        response = requester.request_content(name)
+        response = self.requester.request_content(name)
 
         if not response:
             return None
@@ -75,10 +76,7 @@ class Sorter:
         assert isinstance(text, str)
         sorted_entries["keywords"] = self.__find_keywords(text, verbose)
 
-        wrapped_links = raw.get("links")
-        assert wrapped_links
-        assert isinstance(wrapped_links, list) 
-        sorted_entries["links"] = self.__unwrap_links(wrapped_links, verbose)
+        sorted_entries["links"] = self.__unwrap_links(text, verbose)
         
         if verbose:
             report_statement = '' \
@@ -88,26 +86,24 @@ class Sorter:
         
         return sorted_entries
     
-    def __unwrap_links(self, raw_links:list[dict[str, Any]], verbose:bool) -> list[str]:
-        counter = 0
-        unwrapped_links = []
-        for entry in raw_links:
-            if entry.get("ns") != 0:
-                counter += 1
-                continue
-            raw_link = entry.get("*")
-            assert raw_link
-            assert isinstance(raw_link, str)
-            converted_link = raw_link.replace(" ", "_")
-            unwrapped_links.append(converted_link)
+    def __unwrap_links(self, article_text:str, verbose:bool) -> list[str]:
+
+        link_pattern = r'<a href="/wiki/(.+?)".+?>.+?<\/a>'
+        link_matches = re.findall(link_pattern, article_text)
+
+        filtered_matches = [match for match in link_matches if "Datei:" not in match and "Spezial:" not in match]
+        section_trim_pattern = r'([^#]+?)(#.+)'
+        trimmed_matches = [re.match(section_trim_pattern, match) for match in filtered_matches]
+
+        filtered_trimmed_matches = [match.group(1) for match in trimmed_matches if match]
 
         if verbose:
             report_statement = '' \
-            f'Got {len(raw_links)} raw links, {len(unwrapped_links)} to other wikipedia articles and {counter} others'
+            f'Found {len(filtered_trimmed_matches)} links to other articles'
 
             print(report_statement)
 
-        return unwrapped_links
+        return filtered_trimmed_matches
     
     def __find_keywords(self, text:str, verbose:bool) -> list[str]:
         

@@ -10,7 +10,7 @@ class Visualizer:
     def save_image_from_graph(self, graph_ot_visualize:Graph, save_location:str, image_size:tuple[int, int], resolution:int, verbose:bool) -> None:
         drawable_graph = self.__convert_graph(graph_ot_visualize, verbose)
 
-        fig = plt.figure(1, figsize=image_size, dpi=resolution)
+        fig = plt.figure(f"{graph_ot_visualize.get_root()}-{len(graph_ot_visualize.get_nodes())}", figsize=image_size, dpi=resolution)
         nx.draw_kamada_kawai(drawable_graph, with_labels=True, node_size=4_000, node_color="skyblue", linewidths=1, arrowsize=20, width=1, font_size=8, edge_color="lightgrey")
         
         if verbose:

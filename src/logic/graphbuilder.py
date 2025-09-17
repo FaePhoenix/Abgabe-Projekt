@@ -1,3 +1,4 @@
+import collections
 from datastructures.custom_queue.priorityqueue import PriorityQueue
 from datastructures.custom_queue.normalqueue import NormalQueue
 from datastructures.custom_queue.queue import WikiGraphQueue
@@ -138,7 +139,7 @@ class GraphBuilder:
         build_links = []
         
         links = new_info.get("links")
-        assert links
+        assert links != None
         assert isinstance(links, list)
 
         if verbose:
@@ -196,7 +197,16 @@ class GraphBuilder:
         return None
 
     def __add_node(self, node_id:int, node_name:str, node_data:list[str], node_depth:int) -> None:
+
+
         new_node = Node(id = node_id, name = node_name, keywords = node_data, depth = node_depth)
+
+        #-------- DEBUG
+        for node in self.__nodes.values():
+            if node.get_id() == node_id:
+                print(f"Found duplicates: {node}\nalready exists and was trying to add: {new_node}")
+        #---------- DEBUG END
+
         self.__nodes[node_name] = new_node
 
         return None
