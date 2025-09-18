@@ -1106,7 +1106,8 @@ class Parser:
 
         root_name = filtered_nodes[0].get_name()
 
-        edges = [Edge(cycle_path[idx], cycle_path[idx + 1]) for idx in range(len(cycle_path) - 1)]      
+        edges = [Edge(cycle_path[idx], cycle_path[idx + 1]) for idx in range(len(cycle_path) - 1)]
+        edges.append(Edge(cycle_path[-1], cycle_path[0]))   
 
         converted_cycle = Graph(root_name, set(filtered_nodes), set(edges))
 

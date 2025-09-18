@@ -1,6 +1,5 @@
 import pyvis.network as pynet
 from datastructures.graph.graph import Graph
-from datastructures.cycles.cycle import Cycle
 
 class FancyVisualizer:
     def __init__(self, settings:dict[str, str]) -> None:
@@ -68,7 +67,7 @@ class FancyVisualizer:
 
             print(report_statement)
         
-        network.show(name = graph_name)
+        network.show(name = graph_name, notebook = False)
         return None
     
     def generate_cycle_graph(self, cyclic_graph:Graph, id:int) -> None:
@@ -97,10 +96,12 @@ class FancyVisualizer:
 
         network.barnes_hut()
 
-        file_name = f"{cyclic_graph}-{id}.html"
-        network.show(file_name)
+        file_name = f"{cyclic_graph.get_root()}-{id}.html"
+        network.show(name = file_name, notebook = False)
 
         return None
+    
+
 def main() -> int:
     print("Calling main function in visualizer")
     return 0
