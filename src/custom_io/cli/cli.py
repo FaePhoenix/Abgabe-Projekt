@@ -1,3 +1,4 @@
+from networkx import edges
 from datastructures.graph.graph import Graph
 from datastructures.graph.node import Node
 from datastructures.graph.edge import Edge
@@ -58,7 +59,6 @@ class Parser:
 
                 case "cycles":
                     self.__cycles(options)
-                    continue
 
                 case "traverse":
                     self.__traverse(options)
@@ -555,7 +555,6 @@ class Parser:
     
     def __static_visualization(self, graph:Graph, verbose:bool) -> None:
         visualizer = Visualizer()
-
         image_size, dpi = self.__get_static_vis_options()
 
         disected_file_position = os.path.realpath(__file__).split("\\")
@@ -1046,6 +1045,7 @@ class Parser:
         return None
     
     def __do_stuff_with_cycles(self, graph:Graph, cycles:set[Cycle]) -> None:
+        
         report_statement =  '' \
         f'Found {len(cycles)} cycles\n' \
         'Saving to file (see txtfiles)'
@@ -1054,7 +1054,64 @@ class Parser:
         print(report_statement)
         self.filehelper.write_cycles_to_file(graph, fixed_cycles)
 
-        return None   
+        report_statement = '' \
+        'Select circles for visualization by ID (See file) or skip to skip'
+
+        print(report_statement)
+
+        while True:
+            user_reponse = input()
+            
+            if not user_reponse:
+                break
+
+            if not user_reponse.isnumeric():
+                warning_statement = '' \
+                f'Given response \"{user_reponse}\" is not a number but also not empty to skip.\n' \
+                'Please give ID or skip'
+
+                print(warning_statement)
+                continue
+
+            user_id = int(user_reponse)
+
+            if user_id < 0 or user_id > len(fixed_cycles) - 1:
+                warning_statement = '' \
+                f'Given ID \"{user_id}\" falls outside of the permitted values [0, {len(fixed_cycles) - 1}].\n' \
+                'Please select a valid ID or skip'
+
+                print(warning_statement)
+                continue
+
+            selected_cycle = fixed_cycles[user_id]
+
+            self.__visualize_cycle(graph, selected_cycle, user_id)
+
+        return None 
+
+    def __visualize_cycle(self, graph:Graph, cycle:Cycle, id:int) -> None:
+        settings = {
+            "width" : "1500px",
+            "height" : "1500px",
+            "bgcolor" : "#00052E",
+            "nodecolor" : "#97c2fc"
+        }
+
+        fancy_vis = FancyVisualizer(settings)
+
+        cycle_path = cycle.get_path()
+
+        nodes = [graph.get_node_from_id(id) for id in cycle_path]
+        filtered_nodes = [node for node in nodes if node]
+
+        root_name = filtered_nodes[0].get_name()
+
+        edges = [Edge(cycle_path[idx], cycle_path[idx + 1]) for idx in range(len(cycle_path) - 1)]      
+
+        converted_cycle = Graph(root_name, set(filtered_nodes), set(edges))
+
+        fancy_vis.generate_cycle_graph(converted_cycle, id)
+        return None
 
     def __check_graph_option(self, valid_user_options:dict[str, list[str]]) -> Graph|None:
 
