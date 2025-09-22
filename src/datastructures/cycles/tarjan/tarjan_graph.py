@@ -1,4 +1,4 @@
-from datastructures.cycles.tarjan_node import TarjanNode
+from datastructures.cycles.tarjan.tarjan_node import TarjanNode
 
 class TarjanGraph:
     """
@@ -31,6 +31,7 @@ class TarjanGraph:
         nodes : set[TarjanNode]
             The nodes of the graph
         """
+        
         self.__nodes:dict[int, TarjanNode] = {node.get_id() : node for node in nodes}
         return None
     

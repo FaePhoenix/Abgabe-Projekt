@@ -37,6 +37,7 @@ class TarjanNode:
         Returns __children
 
     """
+    
     def __init__(self, id:int, children:list[int]) -> None:
         """
         Sets up the object given the given internal ID and list of children

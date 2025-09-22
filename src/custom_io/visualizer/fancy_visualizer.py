@@ -1,12 +1,34 @@
-import pyvis.network as pynet
 from datastructures.graph.graph import Graph
 
+import pyvis.network as pynet
+
 class FancyVisualizer:
+    """
+    A class handeling the creation of interactive visualizations
+    in the form of hmtl files for local view out of Graph objects
+
+    Attributes:
+    -----------
+    __settings : dict[str, str]
+        Containing visualization settings that can be customized during object creation
+    
+    Methods:
+    --------
+    generate_browser_graph(graph : Graph, verbose : bool) -> None
+        Creating an html file from the given graph
+
+    generate_cycle_graph(graph : Graph, id : int) -> None
+        Creating an html file from the given circular graph
+    """
+
     def __init__(self, settings:dict[str, str]) -> None:
-        self.__settings = settings
+        self.__settings:dict[str, str] = settings
         return None
     
     def generate_browser_graph(self, graph:Graph, verbose:bool) -> None:
+        """
+        Creates an html files containing an interactive visualization of the given Graph
+        """
 
         custom_height = self.__settings.get("height")
         assert custom_height
@@ -71,6 +93,9 @@ class FancyVisualizer:
         return None
     
     def generate_cycle_graph(self, cyclic_graph:Graph, id:int) -> None:
+        """
+        Creates an html files containing an interactive visualization of the given circular Graph
+        """
 
         custom_height = self.__settings.get("height")
         assert custom_height

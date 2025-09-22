@@ -1,8 +1,7 @@
-from networkx import edges
 from datastructures.graph.graph import Graph
 from datastructures.graph.node import Node
 from datastructures.graph.edge import Edge
-from datastructures.cycles.circle_manager import CircleManager
+from datastructures.cycles.cycle_manager import CycleManager
 from datastructures.cycles.cycle import Cycle
 
 from custom_io.filehelper import FileHelper
@@ -16,13 +15,80 @@ import re
 
 
 class Parser:
+    """
+    A class organizing the main loop of the CLI, used to communicate with the user and call the compononents.
+
+    Attributes:
+    -----------
+    __running : bool
+        The current state of the main loop. Used as the exit condition
+
+    __graphs : dict[str, Graph]
+        The collection of active graphs, accessable by name which consists of root name and size
+
+    __filehelper : FileHelper
+        Helper object to handle file management
+
+    Methods:
+    --------
+    __init__() -> None
+        Initializing the object
+    
+    run() -> None
+        The main loop handeling user input and calling respective commands
+
+    __parse_options(user_options : list[str] | None, valid_options:dict[str, int]) ->tuple[dict[str, list[str]], dict[str, list[str]]]   
+        Parsing the given user options and sorting them for easier access
+
+    __help() -> None
+        Help command
+
+    __default(command : str | None) -> None
+        Command not recognized or not given
+
+    __view(options : list[str] | None) -> None
+        View command to list all active graphs
+    
+    __read(options : list[str] | None) -> None
+        Read command to read a file and if it is a valid graph file adding it to the active graphs
+
+    __save(options : list[str] | None) -> None
+        Save command to save an active graph to a file
+
+    __build(options : list[str] | None) -> None
+        Build command to create a new active graph by fetching and sorting data from wikipedia
+
+    __get_graph_size(valid_user_options : dict[str, list[str]]) -> int
+        Helper function for the build command. Extract the maximum graph size from the valid_user_options
+
+    __get_graph_depth(valid_user_options : dict[str, list[str]]) -> int
+        Helper function for the build command. Extract the maximum depth from the valid_user_options
+
+    __warn_options(invalid_user_options : dict[str, list[str]]) -> bool
+        General helper function. Shows the user which options are detected as invalid and asks if the command should still be run
+
+    __visualize(options : list[str] | None) -> None
+        Visualize command to create image or web representation of an active graph
+
+    
+    """
+
+
     def __init__(self) -> None:
-        self.running : bool = True
-        self.graphs: dict[str, Graph] = {}
-        self.filehelper : FileHelper = FileHelper()
+        """
+        Sets up the object
+        """
+
+        self.__running : bool = True
+        self.__graphs: dict[str, Graph] = {}
+        self.__filehelper : FileHelper = FileHelper()
         return None
     
     def run(self) -> None:
+        """
+        The main loop calling the selected user commands. Saves all active graphs to file on exit.
+        """
+
         intro_statement = '' \
         '-------------------------------------------\n' \
         'Starting Wiki-Graph command-line-interface.\n' \
@@ -31,7 +97,7 @@ class Parser:
 
         print(intro_statement)
 
-        while(self.running):
+        while(self.__running):
             prompt = input('-------------------------------------------\n')
             print('')
             if not prompt:
@@ -68,7 +134,7 @@ class Parser:
                     self.__visualize(options)
 
                 case "exit":
-                    self.running = False
+                    self.__running = False
             
                 case _:
                     self.__default(command)
@@ -78,14 +144,14 @@ class Parser:
 
         print(saving_statement)
 
-        amount = len(self.graphs)
+        amount = len(self.__graphs)
         saved = 0
 
-        for name, graph in self.graphs.items():
+        for name, graph in self.__graphs.items():
             file_name = name + ".txt"
-            self.filehelper.write_graph_to_file(graph, file_name, False)
+            self.__filehelper.write_graph_to_file(graph, file_name, False)
             saved += 1
-            print('Successfully saved graph' + name + f'. Done {(float(saved)/amount):.2%}')
+            print('Graph' + name + f' finished. {(float(saved)/amount):.2%}')
 
         exit_statement = '' \
         '---------------------\n' \
@@ -94,6 +160,10 @@ class Parser:
         print(exit_statement)
                     
     def __parse_options(self, user_options:list[str]|None, valid_options:dict[str, int]) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
+        """
+        Sort user_options into valid and invalid options and returns as a tuple 
+        """
+
         valid_user_options = {}
         invalid_user_options = {}
 
@@ -129,6 +199,10 @@ class Parser:
         return (valid_user_options, invalid_user_options)
         
     def __help(self) -> None:
+        """
+        Print help statement for user
+        """
+
         help_statement = '' \
         'The is a command line interface created by Fae Körper for FMI-BI0058.\n' \
         'The project aims to collect and visualize information about wikipedia articles.\n' \
@@ -148,6 +222,10 @@ class Parser:
         return None
             
     def __default(self, command:str | None) -> None:
+        """
+        Print explanation statement when command is not given or recognized
+        """
+
         if command is None:
             default_statement = '' \
             'Please enter any command. Refer to the \"help\" command for a list of available commands.'
@@ -160,6 +238,10 @@ class Parser:
         return None
 
     def __view(self, options:list[str]|None) -> None:
+        """
+        Listing all active graphs
+        """
+
         available_options = {"-h" : 0, "-v" : 0}
         valid_user_options, invalid_user_options = self.__parse_options(options, available_options)
 
@@ -178,7 +260,7 @@ class Parser:
 
         verbose_option = "-v" in valid_user_options.keys()
         
-        graph_amount = len(self.graphs)
+        graph_amount = len(self.__graphs)
 
         if graph_amount == 0:
             no_graphs_statement = '' \
@@ -192,7 +274,7 @@ class Parser:
 
         print(intro_statement)
 
-        for (name, graph) in self.graphs.items():
+        for (name, graph) in self.__graphs.items():
             if verbose_option:
                 graph_line = f'- {name}, Density: {graph.get_density():.2f}'
 
@@ -204,6 +286,10 @@ class Parser:
         return None
     
     def __read(self, options:list[str]|None) -> None:
+        """
+        Trying to read a given file and if it is a valid graph file adding it to the active graphs
+        """
+
         available_options = {"-h" : 0, "-v" : 0, "-f" : 1}
         valid_user_options, invalid_user_options = self.__parse_options(options, available_options)
 
@@ -240,7 +326,7 @@ class Parser:
         assert filename_option
         file_name = filename_option[0]
 
-        read_graph = self.filehelper.read_graph_from_file(file_name, verbose) 
+        read_graph = self.__filehelper.read_graph_from_file(file_name, verbose) 
         
         if read_graph == None:
             failure_statement = '' \
@@ -255,7 +341,7 @@ class Parser:
         graph_size = read_graph.get_node_count()
         
         key = f"{root_name}-{graph_size}"
-        self.graphs[key] = read_graph
+        self.__graphs[key] = read_graph
 
         success_statement = '' \
         'Successfully read graph and added it to the available graphs.'
@@ -264,6 +350,10 @@ class Parser:
         return None
     
     def __save(self, options:list[str]|None) -> None:
+        """
+        Saves a given active graph into a file
+        """
+
         available_options = {"-h" : 0, "-v" : 0, "-g" : 1, "-n" : 1}
         valid_user_options, invalid_user_options = self.__parse_options(options, available_options)
 
@@ -300,7 +390,7 @@ class Parser:
             file_name = f"{root_name}-{len(graph.get_nodes())}.txt"
         
         try:
-            self.filehelper.write_graph_to_file(graph, file_name, verbose)
+            self.__filehelper.write_graph_to_file(graph, file_name, verbose)
 
             success_statement = '' \
             'Done writing to file to [projectfolder]\\txtfiles\\'
@@ -321,6 +411,10 @@ class Parser:
         return None
     
     def __build(self, options:list[str]|None) -> None:
+        """
+        Building a new active graph
+        """
+
         available_options = {"-h" : 0, "-v" : 0, "-k" : 1, "-d" : 1, "-r" : 1, "-q" : 1}
         valid_user_options, invalid_user_options = self.__parse_options(options, available_options)
 
@@ -415,7 +509,7 @@ class Parser:
             return None
         
         graph_name = f"{graph_root}-{graph_size}"
-        self.graphs[graph_name] = graph
+        self.__graphs[graph_name] = graph
 
         success_statement = '' \
         'Successfully added graph which is now available for other commands using the name:\n' \
@@ -425,6 +519,10 @@ class Parser:
         return None
     
     def __get_graph_size(self, valid_user_options:dict[str, list[str]]) -> int:
+        """
+        Extract maximum graph size from valid_user_options. Helper function for the build command.
+        """
+
         custom_size_used = "-k" in valid_user_options.keys()
         if custom_size_used:
             user_size_option = valid_user_options.get("-k")
@@ -447,6 +545,10 @@ class Parser:
         return graph_size
 
     def __get_graph_depth(self, valid_user_options:dict[str, list[str]]) -> int:
+        """
+        Extract maximum depth from valid_user_options. Helper function for the build command
+        """
+
         custom_depth_used = "-d" in valid_user_options.keys()
         if custom_depth_used:
             user_depth_option = valid_user_options.get("-d")
@@ -468,7 +570,10 @@ class Parser:
         return graph_depth
     
     def __warn_options(self, invalid_user_options:dict[str, list[str]]) -> bool:
-        
+        """
+        Prints invalid options and checks with the user if the command should still be run. General helper function
+        """
+
         if not invalid_user_options:
             return True
 
@@ -496,6 +601,10 @@ class Parser:
             return True
     
     def __visualize(self, options:list[str]|None) -> None:
+        """
+        Visualize command that calls either static or dynamic visualization depending on user option
+        """
+
         available_options = {"-h" : 0, "-v" : 0, "-g" : 1, "-t" : 1}
         valid_user_options, invalid_user_options = self.__parse_options(options, available_options)
 
@@ -797,7 +906,7 @@ class Parser:
             
             if user_choice not in ["1", "2", "3", "4"]:
                 warning_statement = '' \
-                f'Given input \"{user_choice}\" is not one of the three options (1, 2, 3 or 4)'
+                f'Given input \"{user_choice}\" is not one of the options (1, 2, 3 or 4)'
 
                 print(warning_statement)
                 continue
@@ -813,7 +922,7 @@ class Parser:
                     report_statement = '' \
                     f'Graph root: {root_name} ({root_id})\n' \
                     f'Highest_incoming: {highest_in.get_name()} ({highest_in.get_id()}) with {len(highest_in.get_incoming())} incoming\n' \
-                    f'Highest outgoing: {highest_out.get_name()} ({highest_out.get_id()}) with {len(highest_in.get_outgoing())} incoming'
+                    f'Highest outgoing: {highest_out.get_name()} ({highest_out.get_id()}) with {len(highest_out.get_outgoing())} outgoing'
 
                     print(report_statement)
 
@@ -851,7 +960,7 @@ class Parser:
             print(f' - {keyword}')
 
         report_statement = '' \
-                    'To view found neighbours please select (in) incoming or (out) outgoing or skip to skip\n'
+                    'To view found neighbours please select (in) incoming or (out) outgoing or enter to skip\n'
 
         user_action = input(report_statement)
 
@@ -1026,7 +1135,7 @@ class Parser:
         else:
             max_cycle_size = None
 
-        circle_manager = CircleManager()
+        circle_manager = CycleManager()
 
         match cycle_type:
             case "d":
@@ -1052,7 +1161,7 @@ class Parser:
 
         fixed_cycles = list(cycles)
         print(report_statement)
-        self.filehelper.write_cycles_to_file(graph, fixed_cycles)
+        self.__filehelper.write_cycles_to_file(graph, fixed_cycles)
 
         report_statement = '' \
         'Select circles for visualization by ID (See file) or skip to skip'
@@ -1121,7 +1230,7 @@ class Parser:
         if not graph_option_set:
             failure_statement = '' \
             'The option \"-g\" is manditory and was not set.\n' \
-            'Please use \"-g [graph_name]\" to select a graph to save'
+            'Please use \"-g [graph_name]\" to select a graph'
 
             print(failure_statement)
             return None
@@ -1130,7 +1239,7 @@ class Parser:
         assert wrapped_graph_name
         graph_name = wrapped_graph_name[0]
 
-        graph_exists = graph_name in self.graphs.keys()
+        graph_exists = graph_name in self.__graphs.keys()
         if not graph_exists:
             failure_statement = '' \
             f'Given the graph name: {graph_name}\n' \
@@ -1141,7 +1250,7 @@ class Parser:
             print(failure_statement)
             return None
         
-        graph = self.graphs.get(graph_name)
+        graph = self.__graphs.get(graph_name)
 
         return graph
     

@@ -26,9 +26,8 @@ class WikiGraphQueue(ABC):
 
     add_new_entries(new_links : list[str], origin_id : int, origin_depth : int) -> None:
         Updates known articles and creates new queue entries for unknown article names in new_links based on the origin_id and origin_depth
-    
-    
     """
+
     def __init__(self, starting_name:str) -> None:
         """
         Sets up the entries and blacklist
@@ -145,6 +144,21 @@ class WikiGraphQueue(ABC):
         return None
 
     def __add_entries(self, links:list[str], origin_id:int, origin_depth:int) -> None:
+        """
+        Adds given links to the queue
+
+        Parameters:
+        -----------
+        links : list[str]
+            The links to add to the queue
+
+        origin_id : int
+            The id of the article / node from which the links stem from
+
+        origin_depth : int
+            The depth of the origin article of the links
+        """
+
         for link in links:
             new_entry = QueueEntry(link, origin_id, origin_depth + 1)
             self.entries.append(new_entry)
@@ -152,6 +166,21 @@ class WikiGraphQueue(ABC):
         return None
     
     def __update_entries(self, links:list[str], origin_id:int, origin_depth:int) -> None:
+        """
+        Updates the queue based on the given links
+
+        Parameters:
+        -----------
+        links : list[str]
+            The links to update the queue
+
+        origin_id : int
+            The id of the article / node the links stem from
+
+        origin_depth : int
+            The depth of the origin article of the links
+        """
+
         for entry in self.entries:
             if (name := entry.get_name()) in links:
                 links.remove(name)

@@ -55,19 +55,6 @@ class Graph:
 
 
     def __init__(self, root:str, nodes:set[Node], edges:set[Edge]) -> None:
-        """
-        Sets up the graph object by converting the sets of nodes and edges into the maps and calculating information about the interconnectivity and saving it directly into the nodes
-
-        Parameters:
-        -----------
-        root: str
-            The Name of the article that is the root of the graph
-        nodes : set[Node]
-            The nodes of the graph
-
-        edges : set[Edge]
-            The edges of the graph
-        """
         self.__root:str = root
         self.__nodes:dict[int, Node] = {node.get_id() : node for node in nodes}
         self.__edges:dict[tuple[int, int], Edge] = {(edge.get_start_id(), edge.get_end_id()) : edge for edge in edges}
@@ -76,6 +63,9 @@ class Graph:
      
 
     def __extend_nodes(self) -> None:
+        """
+        Adds the edges into neighbourhood arrays of the nodes for ease of access
+        """
 
         for edge in self.__edges.values():
             start_id = edge.get_start_id()
@@ -217,7 +207,7 @@ class Graph:
         """
 
         for node in self.__nodes.values():
-            if node.get_name() == name:
+            if node.get_name().lower() == name.lower():
                 return node.get_id()
             
         return None

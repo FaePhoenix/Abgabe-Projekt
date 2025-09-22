@@ -25,6 +25,7 @@ class FileHelper:
         """
         Sets up the object
         """
+
         disected_file_position = os.path.realpath(__file__).split("\\")
         project_folder = "\\".join(disected_file_position[:len(disected_file_position) - 3])
         self.__directory = project_folder + "\\"
@@ -32,6 +33,17 @@ class FileHelper:
         return None
     
     def write_cycles_to_file(self, origin_graph:Graph, cycles:list[Cycle]) -> None:
+        """
+        Writes the found cycles of a graph into a file
+
+        Parameters:
+        -----------
+        origin_graph : Graph
+            The graph in which the cycles are from
+
+        cycles : list[Cycle]
+            The cycles that are written into the file
+        """
 
         cycle_lines = []
         for idx, cycle in enumerate(cycles):
@@ -157,7 +169,7 @@ class FileHelper:
 
                 case _:
                     warning_statement = '' \
-                    f'Given response \"{user_repsonse}\" was neither o to override nor r to rename\n' \
+                    f'Given response \"{user_repsonse}\" was neither o to override nor r to rename or s to skip\n' \
                     'Please try again'
 
                     print(warning_statement)

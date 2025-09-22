@@ -1,16 +1,42 @@
-import collections
 from datastructures.custom_queue.priorityqueue import PriorityQueue
 from datastructures.custom_queue.normalqueue import NormalQueue
 from datastructures.custom_queue.queue import WikiGraphQueue
-from datastructures.custom_queue.queueentry import QueueEntry
-from logic.fetch.sorter import Sorter
 from datastructures.graph.graph import Graph
 from datastructures.graph.node import Node
 from datastructures.graph.edge import Edge
+
+from logic.fetch.sorter import Sorter
+
 from typing import Any
 
 
 class GraphBuilder:
+    """
+    A class to organize the creation of new graphs by fetching and organizing data
+
+    Attributes:
+    -----------
+    __max_graph_size : int
+        The maximum size of the graph that is being created
+
+    __max_depth : int
+        The maximum distance that an article can have to the root
+
+    __edges : set[Edge]
+        The collection of created edges
+
+    __nodes : dict[str, Node]
+        The collection of created nodes accessable by article name
+
+    __queue : WikiGraphQueue
+        The queue that holds the seen but not accessed articles
+
+    Methods:
+    --------
+    build_graph_from_article(start_name : str, queue_type : str, verbose : bool) -> Graph | None
+        Returns the created graph or None if creation failed
+    """
+
     def __init__(self, max_graph_size, max_depth) -> None:
         self.__max_graph_size:int = max_graph_size
         self.__max_depth:int = max_depth
@@ -20,6 +46,11 @@ class GraphBuilder:
         return None
     
     def build_graph_from_article(self, start_name:str, queue_type:str, verbose:bool) -> Graph | None:
+        """
+        Builds a graph from the article given by start_name as root and then fetching
+        and adding new nodes until either the queue is empty or the maximum size is reached
+        """
+
         sorter = Sorter()
 
         assert queue_type in ["n", "p"]
@@ -47,21 +78,42 @@ class GraphBuilder:
             return None
        
         starting_id = starting_info.get("id")
-        assert starting_id
-        assert isinstance(starting_id, int)
+        if not (starting_id and isinstance(starting_id, int)):
+            warning_statement = '' \
+            'Could not read ID from article.\n' \
+            'Aborting'
+
+            print(warning_statement)
+            return None
 
         starting_name = starting_info.get("name")
-        assert starting_name
-        assert isinstance(starting_name, str)
+        if not (starting_name and isinstance(starting_name, str)):
+            warning_statement = '' \
+            'Could not read name from article.\n' \
+            'Aborting'
+
+            print(warning_statement)
+            return None
 
         starting_keywords = starting_info.get("keywords")
-        assert starting_keywords
-        assert isinstance(starting_keywords, list)
+        if not (starting_keywords and isinstance(starting_keywords, list)):
+            warning_statement = '' \
+            'Could not read keywords from article.\n' \
+            'Aborting'
+
+            print(warning_statement)
+            return None
+ 
         self.__add_node(starting_id, starting_name, starting_keywords, 0)
 
         starting_links = starting_info.get("links")
-        assert starting_links
-        assert isinstance(starting_links, list)
+        if not (starting_links and isinstance(starting_links, list)):
+            warning_statement = '' \
+            'Could not read links from article.\n' \
+            'Aborting'
+
+            print(warning_statement)
+            return None
 
         report_statement = f'\n(1|{self.__max_graph_size})'
 
@@ -72,8 +124,20 @@ class GraphBuilder:
         
         self.__queue.add_new_entries(starting_links, starting_id, 0, verbose)
 
+        self.__run_build_loop(sorter, verbose)
+
+        if verbose:
+            report_statement = '' \
+            'Graph creation finished.'
+
+            print(report_statement)
+
+        network = Graph(start_name, set(self.__nodes.values()), self.__edges)
+
+        return network
+
+    def __run_build_loop(self, sorter:Sorter, verbose:bool) -> None:
         while len(self.__nodes) < self.__max_graph_size:
-            
             next_queue_entry = self.__queue.get_next_entry()
 
             if next_queue_entry == None:
@@ -123,16 +187,8 @@ class GraphBuilder:
             self.__add_edges_toward_node(next_queue_entry.get_origins(), article_id, verbose)
 
             self.__build_edges_from_links(article_depth, new_info, article_id, verbose)
-
-        if verbose:
-            report_statement = '' \
-            'Graph creation finished.'
-
-            print(report_statement)
-
-        network = Graph(start_name, set(self.__nodes.values()), self.__edges)
-
-        return network
+            
+        return None
 
     def __build_edges_from_links(self, article_depth:int, new_info:dict[str, Any], article_id:int, verbose:bool) -> None:
         new_links = []
@@ -198,14 +254,7 @@ class GraphBuilder:
 
     def __add_node(self, node_id:int, node_name:str, node_data:list[str], node_depth:int) -> None:
 
-
         new_node = Node(id = node_id, name = node_name, keywords = node_data, depth = node_depth)
-
-        #-------- DEBUG
-        for node in self.__nodes.values():
-            if node.get_id() == node_id:
-                print(f"Found duplicates: {node}\nalready exists and was trying to add: {new_node}")
-        #---------- DEBUG END
 
         self.__nodes[node_name] = new_node
 

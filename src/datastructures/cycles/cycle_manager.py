@@ -1,18 +1,52 @@
 from datastructures.graph.graph import Graph
 from datastructures.graph.node import Node
-from datastructures.cycles.tarjan_graph import TarjanGraph
-from datastructures.cycles.tarjan_node import TarjanNode
-from datastructures.cycles.tarjan_calculator import TarjanCalculator
+from datastructures.cycles.tarjan.tarjan_graph import TarjanGraph
+from datastructures.cycles.tarjan.tarjan_node import TarjanNode
+from datastructures.cycles.tarjan.tarjan_calculator import TarjanCalculator
 from datastructures.cycles.cycle import Cycle
 
 
-class CircleManager:
+class CycleManager:
+    """
+    A class organizing the finding of cycles in graphs
+
+    Paramters:
+    ----------
+    __partitions : set[Graph]
+        A collection used to save subgraphs that guarantee that all cycles are contained within a single partition
+
+    Methods:
+    --------
+    get_directed_cycles(graph : Graph, verbose : bool, max_cycle_size : int | None) -> set[Cycle]:
+        Finds all directed cycles in a given graph
+
+    get_undirected_cycles(graph : Graph, verbose : bool, max_cycle_size : int | None) -> set[Cycle]:
+        Finds all undirected cycles in a given graph 
+    """
+
     def __init__(self) -> None:
+        """
+        Declares the object
+        """
+
         self.__partitions:set[Graph]
         return None
     
     def get_directed_cycles(self, graph:Graph, verbose:bool, max_cycle_size:int|None) -> set[Cycle]:
+        """
+        Finds all directed cycles in the given graph that are shorter than the given max_cycle_size
 
+        Parameters:
+        -----------
+        graph : Graph
+            The graph in which to find cycles
+
+        verbose : bool
+            If the process should have verbose logging
+
+        max_cycle_size : int | None
+            The maximum size of cycle to search for. If None is given, all cycles will be found
+        """
         converted_graph = self.__generate_tarjan_graph(graph, verbose)
 
         tarjan_calc = TarjanCalculator()
@@ -23,14 +57,28 @@ class CircleManager:
         if not max_cycle_size:
             max_cycle_size = len(graph.get_nodes())
 
-        cycles = self.__get_cycles_from_partitions(max_cycle_size, verbose)
+        cycles = self.__get_directed_cycles_from_partitions(max_cycle_size, verbose)
 
         filtered_cycles = self.__filter_cycles(cycles, verbose)
 
         return filtered_cycles
     
     def get_undirected_cycles(self, graph:Graph, verbose:bool, max_cycle_size:int|None) -> set[Cycle]:
+        """
+        Finds all undirected cycles in the given graph that are shorter than the given max_cycle_size
 
+        Parameters:
+        -----------
+        graph : Graph
+            The graph in which to find cycles
+
+        verbose : bool
+            If the process should have verbose logging
+
+        max_cycle_size : int | None
+            The maximum size of cycle to search for. If None is given, all cycles will be found
+        """
+                
         if not max_cycle_size:
             max_cycle_size = len(graph.get_nodes())
 
@@ -41,6 +89,21 @@ class CircleManager:
         return filtered_cycles
     
     def __get_nondirectional_cycles(self, graph:Graph, max_depth:int, verbose:bool) -> set[Cycle]:
+        """
+        Search for the cycles within each found partition 
+
+        Parameters:
+        -----------
+        graph : Graph
+            The original graph
+        
+        max_depth : int
+            The maximum size of cycle to search for
+
+        verbose : bool
+            If the process should have verbose logging
+        """
+
         nodes = graph.get_nodes()
 
         all_cycles = set()
@@ -59,6 +122,24 @@ class CircleManager:
         return all_cycles
     
     def __get_nondirectional_cycles_from_graph(self, graph:Graph, next_node:Node, max_depth:int, path:list[int]|None = None) -> set[Cycle]:
+        """
+        Recursive function to find all cycles in a stronly connected graph
+
+        Parameters:
+        -----------
+        graph : Graph
+            The stronly connected graph
+
+        next_node : Node
+            Starting node / currently focused node
+        
+        max_depth : int
+            The maximum size of cycle to search for
+        
+        path : list[int] | None
+            List of id's of previously visited nodes in search of cycles
+        """
+
         if not path:
             path = []
 
@@ -96,6 +177,18 @@ class CircleManager:
         return cycles
     
     def __generate_tarjan_graph(self, graph:Graph, verbose:bool) -> TarjanGraph:
+        """
+        Create a TarjanGraph from a normal Graph object
+
+        Parameters:
+        -----------
+        graph : Graph
+            The graph to convert
+
+        verbose : bool
+            If the process should have verbose logging
+        """
+
         tarjan_nodes = set()
 
         nodes = graph.get_nodes()
@@ -128,6 +221,21 @@ class CircleManager:
         return TarjanGraph(tarjan_nodes)
     
     def __convert_sccs(self, sccs:list[list[int]], graph:Graph, verbose:bool) -> set[Graph]:
+        """
+        Filters the strongly connected components to only include components bigger than 3 and convert each into a graph
+
+        Paramters:
+        ----------
+        sccs : list[list[int]]
+            The list of strongly connected components as a list of node id's
+
+        graph : Graph
+            The original Graph
+
+        verbose : bool
+            If the process should have verbose logging
+        """
+
         partitions = set()
         
         if verbose:
@@ -161,6 +269,21 @@ class CircleManager:
         return partitions
 
     def __build_partial_graph(self, graph:Graph, verbose:bool, scc:list[int]) -> Graph:
+        """
+        Converts a strongly connected component into a graph
+
+        Parameters:
+        -----------
+        graph : Graph
+            The original graph
+        
+        verbose : bool
+            If the process should have verbose logging
+
+        scc : list[int]
+            A collection of node id's that represent a strongly connected component
+        """
+
         nodes:set[Node] = set()
 
         for id in scc:
@@ -205,7 +328,19 @@ class CircleManager:
 
         return partial_graph
     
-    def __get_cycles_from_partitions(self, max_depth:int, verbose:bool) -> set[Cycle]:
+    def __get_directed_cycles_from_partitions(self, max_depth:int, verbose:bool) -> set[Cycle]:
+        """
+        Search each strongly connected graph for cycles
+
+        Parameters:
+        -----------
+        max_depth : int
+            The maximum size of cycles to search for
+
+        verbose : bool
+            If the process should have verbose logging
+        """
+
         cycles = set()
 
         for graph in self.__partitions:
@@ -217,7 +352,7 @@ class CircleManager:
 
                 print(report_statement)
 
-            partial_cycles = self.__get_cycles_from_partition(graph, random_node, max_depth)
+            partial_cycles = self.__get_directed_cycles_from_partition(graph, random_node, max_depth)
             cycles.update(partial_cycles)
 
             if verbose:
@@ -234,7 +369,25 @@ class CircleManager:
 
         return cycles
 
-    def __get_cycles_from_partition(self, graph:Graph, next_node:Node, max_depth:int, path:list[int]|None = None) -> set[Cycle]:
+    def __get_directed_cycles_from_partition(self, graph:Graph, next_node:Node, max_depth:int, path:list[int]|None = None) -> set[Cycle]:
+        """
+        Recursive function to find all cycles in a stronly connected graph
+
+        Parameters:
+        -----------
+        graph : Graph
+            The stronly connected graph
+
+        next_node : Node
+            Starting node / currently focused node
+        
+        max_depth : int
+            The maximum size of cycle to search for
+        
+        path : list[int] | None
+            List of id's of previously visited nodes in search of cycles        
+        """
+
         if not path:
             path = []
         
@@ -260,14 +413,23 @@ class CircleManager:
         cycles = set()
 
         for child in filtered_children:
-            child_cycles = self.__get_cycles_from_partition(graph, child, max_depth, path)
+            child_cycles = self.__get_directed_cycles_from_partition(graph, child, max_depth, path)
             cycles.update(child_cycles)
 
         return cycles
 
     def __filter_cycles(self, cycles:set[Cycle], verbose:bool) -> set[Cycle]:
+        """
+        Filter cycles to only allow sizes of 3 or bigger
 
-        filtered_cycles = set([cycle for cycle in cycles if len(cycle.get_path()) > 2])
+        cycles : set[Cycle]
+            The collection of cycles to filter
+
+        verbose : bool
+            If the process should have verbose logging
+        """
+
+        filtered_cycles = {cycle for cycle in cycles if len(cycle.get_path()) > 2}
 
         if verbose:
             report_statement = '' \
