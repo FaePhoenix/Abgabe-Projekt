@@ -31,46 +31,8 @@ class Parser:
 
     Methods:
     --------
-    __init__() -> None
-        Initializing the object
-    
     run() -> None
         The main loop handeling user input and calling respective commands
-
-    __parse_options(user_options : list[str] | None, valid_options:dict[str, int]) ->tuple[dict[str, list[str]], dict[str, list[str]]]   
-        Parsing the given user options and sorting them for easier access
-
-    __help() -> None
-        Help command
-
-    __default(command : str | None) -> None
-        Command not recognized or not given
-
-    __view(options : list[str] | None) -> None
-        View command to list all active graphs
-    
-    __read(options : list[str] | None) -> None
-        Read command to read a file and if it is a valid graph file adding it to the active graphs
-
-    __save(options : list[str] | None) -> None
-        Save command to save an active graph to a file
-
-    __build(options : list[str] | None) -> None
-        Build command to create a new active graph by fetching and sorting data from wikipedia
-
-    __get_graph_size(valid_user_options : dict[str, list[str]]) -> int
-        Helper function for the build command. Extract the maximum graph size from the valid_user_options
-
-    __get_graph_depth(valid_user_options : dict[str, list[str]]) -> int
-        Helper function for the build command. Extract the maximum depth from the valid_user_options
-
-    __warn_options(invalid_user_options : dict[str, list[str]]) -> bool
-        General helper function. Shows the user which options are detected as invalid and asks if the command should still be run
-
-    __visualize(options : list[str] | None) -> None
-        Visualize command to create image or web representation of an active graph
-
-    
     """
 
 
@@ -161,7 +123,15 @@ class Parser:
                     
     def __parse_options(self, user_options:list[str]|None, valid_options:dict[str, int]) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
         """
-        Sort user_options into valid and invalid options and returns as a tuple 
+        Sort user_options into valid and invalid options and returns as a tuple
+
+        Parameters:
+        -----------
+        user_options : list[str] | None
+            The given user options
+
+        valid_options : dict[str, int]
+            The valid options to search through
         """
 
         valid_user_options = {}
@@ -224,6 +194,11 @@ class Parser:
     def __default(self, command:str | None) -> None:
         """
         Print explanation statement when command is not given or recognized
+
+        Parameters:
+        -----------
+        command : str | None
+            The given command
         """
 
         if command is None:
@@ -240,6 +215,11 @@ class Parser:
     def __view(self, options:list[str]|None) -> None:
         """
         Listing all active graphs
+
+        Parameters:
+        -----------
+        options : list[str] | None
+            The given user options
         """
 
         available_options = {"-h" : 0, "-v" : 0}
@@ -288,6 +268,11 @@ class Parser:
     def __read(self, options:list[str]|None) -> None:
         """
         Trying to read a given file and if it is a valid graph file adding it to the active graphs
+
+        Parameters:
+        -----------
+        options : list[str] | None
+            The given user options
         """
 
         available_options = {"-h" : 0, "-v" : 0, "-f" : 1}
@@ -352,6 +337,11 @@ class Parser:
     def __save(self, options:list[str]|None) -> None:
         """
         Saves a given active graph into a file
+
+        Parameters:
+        -----------
+        options : list[str] | None
+            The given user options
         """
 
         available_options = {"-h" : 0, "-v" : 0, "-g" : 1, "-n" : 1}
@@ -413,6 +403,11 @@ class Parser:
     def __build(self, options:list[str]|None) -> None:
         """
         Building a new active graph
+
+        Parameters:
+        -----------
+        options : list[str] | None
+            The given user options
         """
 
         available_options = {"-h" : 0, "-v" : 0, "-k" : 1, "-d" : 1, "-r" : 1, "-q" : 1}
@@ -521,6 +516,11 @@ class Parser:
     def __get_graph_size(self, valid_user_options:dict[str, list[str]]) -> int:
         """
         Extract maximum graph size from valid_user_options. Helper function for the build command.
+
+        Parameters:
+        -----------
+        valid_user_options : dict[str, list[str]]
+            The valid options given by the user
         """
 
         custom_size_used = "-k" in valid_user_options.keys()
@@ -547,6 +547,11 @@ class Parser:
     def __get_graph_depth(self, valid_user_options:dict[str, list[str]]) -> int:
         """
         Extract maximum depth from valid_user_options. Helper function for the build command
+
+        Parameters:
+        -----------
+        valid_user_options : dict[str, list[str]]
+            The valid options given by the user
         """
 
         custom_depth_used = "-d" in valid_user_options.keys()
@@ -572,6 +577,11 @@ class Parser:
     def __warn_options(self, invalid_user_options:dict[str, list[str]]) -> bool:
         """
         Prints invalid options and checks with the user if the command should still be run. General helper function
+
+        Parameters:
+        -----------
+        invalid_user_options : dict[str, list[str]]
+            The invalid options given by the user
         """
 
         if not invalid_user_options:
@@ -603,6 +613,11 @@ class Parser:
     def __visualize(self, options:list[str]|None) -> None:
         """
         Visualize command that calls either static or dynamic visualization depending on user option
+
+        Parameters:
+        -----------
+        options : list[str] | None
+            The given user options
         """
 
         available_options = {"-h" : 0, "-v" : 0, "-g" : 1, "-t" : 1}
@@ -663,6 +678,17 @@ class Parser:
         return None
     
     def __static_visualization(self, graph:Graph, verbose:bool) -> None:
+        """
+        Create a static visualization of a graph
+
+        Parameters:
+        -----------
+        graph : Graph
+            The graph to visualize
+
+        verbose : bool
+            Should the action be logged verbosely
+        """
         visualizer = Visualizer()
         image_size, dpi = self.__get_static_vis_options()
 
@@ -675,6 +701,10 @@ class Parser:
         return None
     
     def __get_static_vis_options(self) -> tuple[tuple[int, int], int]:
+        """
+        Get the sizing for the static visualization from the user
+        """
+
         explanation_statement = '' \
         'Please enter either a triplet of image width, image height and resolution (dpi) or accept default by skipping\n' \
         'Default: 150,90,100\n' \
@@ -732,6 +762,17 @@ class Parser:
         return img_size, dpi
 
     def __dynamic_visualization(self, graph:Graph, verbose:bool) -> None:
+        """
+        Create a dynamic visualization of a graph
+
+        Parameters:
+        -----------
+        graph : Graph
+            The graph to visualize
+
+        verbose : bool
+            Should the action be logged verbosely
+        """
 
         settings = self.__get_dynamic_vis_options()
 
@@ -742,6 +783,10 @@ class Parser:
         return None
     
     def __get_dynamic_vis_options(self) -> dict[str, str]:
+        """
+        Get the settings for the dynamic visualization from the user
+        """
+        
         explanation_statement = '' \
         'Please select settings for the creation of the interactive graph:' 
 
@@ -762,6 +807,10 @@ class Parser:
         return settings
 
     def __get_dyn_vis_nodecolor(self) -> str:
+        """
+        Get the nodecolor for the dynamic visualization from the user
+        """
+        
         nodecoloring_statement = '' \
         'Please enter a color hexcode for the nodes or skip to accept the default\n' \
         'Default is: 97c2fc (light blue)\n'
@@ -788,6 +837,10 @@ class Parser:
         return f"#{user_node_color}"
 
     def __get_dyn_vis_bgcolor(self) -> str:
+        """
+        Get the background color for the dynamic visualization from the user
+        """
+
         bgcoloring_statement = '' \
         'Please enter a color hexcode for the background or skip to accept the default\n' \
         'Default is: 00052E (dark blue)\n'
@@ -816,6 +869,10 @@ class Parser:
         return f"#{user_bg_color}"
 
     def __get_dyn_vis_size(self) -> tuple[str, str]:
+        """
+        Get the sizing for the dynamic visualization from the user
+        """
+
         sizing_statment = '' \
         'Please enter a tuple of pixel amount to specify the width and heigth or skip to accept default\n' \
         'Valid values are integers between 100 and 10.000\n' \
@@ -859,6 +916,15 @@ class Parser:
         return f"{user_width}px", f"{user_heigth}px"
     
     def __traverse(self, options:list[str]|None) -> None:
+        """
+        Traverse an active graph
+
+        Parameters:
+        -----------
+        options : list[str] | None
+            The given user options
+        """
+         
         available_options = {"-h" : 0, "-g" : 1}
         valid_user_options, invalid_user_options = self.__parse_options(options, available_options)
 
@@ -892,6 +958,23 @@ class Parser:
         return None
 
     def __run_traverse(self, graph:Graph, root_name:str, root_id:int, current_node:Node):
+        """
+        Traverse the given graph
+
+        Parameters:
+        -----------
+        graph:Graph
+            The given graph to traverse
+
+        root_name:str
+            The name of the root
+
+        root_id:int
+            The id of the root
+
+        current_node:Node
+            The currently focused node
+        """
 
         while True:
             report_statement = '' \
@@ -940,6 +1023,18 @@ class Parser:
                     break
 
     def __get_further_info(self, graph:Graph, current_node:Node) -> None:
+        """
+        Give further information about the currently focused node
+
+        Parameters:
+        -----------
+        graph : Graph
+            The graph that is being traversed
+
+        current_node : Node
+            The currently focused node
+        """
+
         node_name = current_node.get_name()
         node_id = current_node.get_id()
         node_depth = current_node.get_depth()
@@ -982,6 +1077,18 @@ class Parser:
         return None
 
     def __get_outgoing_information(self, graph:Graph, edges:list[Edge]) ->  None:
+        """
+        Print out further information about the outgoing edges
+
+        Parameters:
+        -----------
+        graph : Graph
+            The graph
+
+        edges : list[Edge]
+            The outgoing edges
+        """
+
         report_statement = '' \
         'Outgoing neighbours:'
 
@@ -1007,6 +1114,18 @@ class Parser:
         return None
     
     def __get_incoming_information(self, graph:Graph, edges:list[Edge]) ->  None:
+        """
+        Print out further information about the outgoing edges
+
+        Parameters:
+        -----------
+        graph : Graph
+            The graph
+
+        edges : list[Edge]
+            The incoming edges
+        """
+
         report_statement = '' \
         'Incoming neighbours:'
 
@@ -1032,6 +1151,15 @@ class Parser:
         return None
 
     def __change_focus(self, graph:Graph) -> Node | None:
+        """
+        Change focus to a new node of the graph
+        
+        Parameters:
+        -----------
+        graph : Graph
+            The graph
+        """
+
         report_statement = '' \
         'Changing focus to a new node.\n' \
         'Please enter the id of the node you want to switch to:\n'
@@ -1061,6 +1189,15 @@ class Parser:
         return node
     
     def __cycles(self, options:list[str]|None) -> None:
+        """
+        Find cycles in graphs
+
+        Parameters:
+        -----------
+        options : list[str] | None
+            The given user options
+        """
+
         available_options = {"-h" : 0, "-g" : 1, "-t" : 1, "-v" : 0, "-m" : 1}
         valid_user_options, invalid_user_options = self.__parse_options(options, available_options)
 
@@ -1154,7 +1291,18 @@ class Parser:
         return None
     
     def __do_stuff_with_cycles(self, graph:Graph, cycles:set[Cycle]) -> None:
+        """
+        Visualize found cycyles
+
+        Parameters:
+        -----------
+        graph : Graph
+            The graph of the cycyles
         
+        cycles : set[Cycle]
+            The found cycles
+        """
+
         report_statement =  '' \
         f'Found {len(cycles)} cycles\n' \
         'Saving to file (see txtfiles)'
@@ -1199,6 +1347,21 @@ class Parser:
         return None 
 
     def __visualize_cycle(self, graph:Graph, cycle:Cycle, id:int) -> None:
+        """
+        Visualizea a single cycle
+
+        Parameters:
+        -----------
+        graph : Graph
+            The graph in the cycle was found in
+
+        cycle : Cycle
+            The cycle to visualize
+
+        id : int
+            The id of the cycle
+        """
+
         settings = {
             "width" : "1500px",
             "height" : "1500px",
@@ -1224,6 +1387,14 @@ class Parser:
         return None
 
     def __check_graph_option(self, valid_user_options:dict[str, list[str]]) -> Graph|None:
+        """
+        Checking the given user_options for a provided graph
+
+        Parameters:
+        -----------
+        valid_user_options : dict[str, list[str]]
+            The valid user options
+        """
 
         graph_option_set = "-g" in valid_user_options.keys()
 

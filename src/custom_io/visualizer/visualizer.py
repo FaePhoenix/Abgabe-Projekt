@@ -1,16 +1,50 @@
 from datastructures.graph.graph import Graph
+
 import networkx as nx
 import matplotlib.pyplot as plt
 
 
 class Visualizer:
+    """
+    A class organizing the creation of image files from graphs
+
+    Methods:
+    --------
+    save_image_from_graph(graph : Graph, save_location : str, image_size : tuple[int, int], resolution : int, verbose : bool) -> None
+        Create an image from a graph and save it to a file
+    """
+
     def __init__(self) -> None:
+        """
+        Sets up the object
+        """
         return None
     
-    def save_image_from_graph(self, graph_ot_visualize:Graph, save_location:str, image_size:tuple[int, int], resolution:int, verbose:bool) -> None:
-        drawable_graph = self.__convert_graph(graph_ot_visualize, verbose)
+    def save_image_from_graph(self, graph:Graph, save_location:str, image_size:tuple[int, int], resolution:int, verbose:bool) -> None:
+        """
+        Creating an image from a graph and save it to a file
 
-        fig = plt.figure(f"{graph_ot_visualize.get_root()}-{len(graph_ot_visualize.get_nodes())}", figsize=image_size, dpi=resolution)
+        Parameters:
+        -----------
+        graph : Graph
+            Graph to create an image of
+
+        save_location : str
+            Folder location in which to save the image file
+
+        image_size : tuple[int, int]
+            The size of the image in width and heigth
+
+        resolution : int
+            The resolution of the image
+
+        verbose : bool
+            Should the action be logged verbosely
+        """
+
+        drawable_graph = self.__convert_graph(graph, verbose)
+
+        fig = plt.figure(f"{graph.get_root()}-{len(graph.get_nodes())}", figsize=image_size, dpi=resolution)
         nx.draw_kamada_kawai(drawable_graph, with_labels=True, node_size=4_000, node_color="skyblue", linewidths=1, arrowsize=20, width=1, font_size=8, edge_color="lightgrey")
         
         if verbose:
@@ -19,7 +53,7 @@ class Visualizer:
 
             print(report_statement)        
 
-        file_name = graph_ot_visualize.get_root() + "-" + str(len(graph_ot_visualize.get_nodes())) + ".png" 
+        file_name = graph.get_root() + "-" + str(len(graph.get_nodes())) + ".png" 
         full_file_name = save_location + file_name
         plt.savefig(full_file_name)
 
@@ -31,7 +65,18 @@ class Visualizer:
 
         return None
 
-    def __convert_graph(self, graph_ot_visualize:Graph, verbose:bool) -> nx.DiGraph:
+    def __convert_graph(self, graph:Graph, verbose:bool) -> nx.DiGraph:
+        """
+        Converts the given graph into a graph from the networkx module
+
+        Parameters:
+        -----------
+        graph : Graph
+            The graph to convert
+
+        verbose : bool
+            Should the action be logged verbosely
+        """
         drawn_graph = nx.DiGraph()
 
         if verbose:
@@ -40,27 +85,27 @@ class Visualizer:
 
             print(report_statement)
         
-        for node in graph_ot_visualize.get_nodes():
+        for node in graph.get_nodes():
             drawn_graph.add_node(f"{node.get_name()}")
 
         if verbose:
             report_statement = '' \
-            f'Successfully created {len(graph_ot_visualize.get_nodes())} nodes in converted graph'
+            f'Successfully created {len(graph.get_nodes())} nodes in converted graph'
 
             print(report_statement)
 
-        for edge in graph_ot_visualize.get_edges():
+        for edge in graph.get_edges():
             start_id = edge.get_start_id()
-            start_name = graph_ot_visualize.get_node_name(start_id)
+            start_name = graph.get_node_name(start_id)
 
             end_id = edge.get_end_id()
-            end_name = graph_ot_visualize.get_node_name(end_id)
+            end_name = graph.get_node_name(end_id)
 
             drawn_graph.add_edge(f"{start_name}", f"{end_name}")
 
         if verbose:
             report_statement = '' \
-            f'Successfully created {len(graph_ot_visualize.get_edges())} edges in converted graph\n' \
+            f'Successfully created {len(graph.get_edges())} edges in converted graph\n' \
             'Done converting graph, starting drawing'
 
             print(report_statement)

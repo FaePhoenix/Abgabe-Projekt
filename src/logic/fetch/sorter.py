@@ -1,5 +1,6 @@
-import re
 from logic.fetch.requester import Requester
+
+import re
 from collections import Counter
 from typing import Any
 
@@ -16,10 +17,13 @@ class Sorter:
 
 
     def __init__(self) -> None:
+        """
+        Sets up the object
+        """
+
         self.requester = Requester()
         return None
 
-    
     def get_content(self, name:str, verbose:bool) -> dict[str, Any] | None:
         """
         Requests the article named name and sorts the json content into a more useful format
@@ -28,6 +32,9 @@ class Sorter:
         -----------
         name : str
             The name of the article to fetch
+
+        verbose : bool
+            Should the action be logged verbosely
         """
 
         response = self.requester.request_content(name)
@@ -44,6 +51,17 @@ class Sorter:
         return self.__sort_wiki_json(response, verbose)
 
     def __sort_wiki_json(self, response_json:dict, verbose:bool) -> dict[str, Any] | None:
+        """
+        Read content from json response into dict format
+
+        Parameters:
+        -----------
+        response_json : dict
+            The whole json response
+
+        verbose : bool
+            Should the action be logged verbosely
+        """
 
         raw = response_json.get("parse")
 
@@ -87,6 +105,17 @@ class Sorter:
         return sorted_entries
     
     def __unwrap_links(self, article_text:str, verbose:bool) -> list[str]:
+        """
+        Read links out of given article text
+
+        Paramters:
+        ----------
+        article_text : str
+            The article text
+
+        verbose : bool
+            Should the action be logged verbosely
+        """
 
         link_pattern = r'<a href="/wiki/(.+?)".+?>.+?<\/a>'
         link_matches = re.findall(link_pattern, article_text)
@@ -106,7 +135,18 @@ class Sorter:
         return filtered_trimmed_matches
     
     def __find_keywords(self, text:str, verbose:bool) -> list[str]:
-        
+        """
+        Reading the kexwords out of the article text
+
+        Parameters:
+        -----------
+        text : str
+            The article text
+
+        verbose : bool
+            Should the action be logged verbosely
+        """
+
         words = text.split(" ")
         cleaned_words = [word .rstrip(",.;") for word in words]
         nominals = [word for word in cleaned_words if word.isalpha() and word[0].isupper() and len(word) > 2]

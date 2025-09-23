@@ -19,7 +19,6 @@ class Requester:
 
         return None
     
-
     def request_content(self, article_name:str) -> dict | None:
         """
         Fetches the article named articlename if it exisits and returns it's json content

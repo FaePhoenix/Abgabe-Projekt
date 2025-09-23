@@ -37,7 +37,19 @@ class GraphBuilder:
         Returns the created graph or None if creation failed
     """
 
-    def __init__(self, max_graph_size, max_depth) -> None:
+    def __init__(self, max_graph_size:int, max_depth:int) -> None:
+        """
+        Sets up the object
+
+        Parameters:
+        -----------
+        max_graph_size : int
+            The maximum graph size to build
+
+        max_depth : int
+            The maximum distance to the root article to consider during graph building
+        """
+
         self.__max_graph_size:int = max_graph_size
         self.__max_depth:int = max_depth
         self.__edges:set[Edge] = set()
@@ -49,6 +61,17 @@ class GraphBuilder:
         """
         Builds a graph from the article given by start_name as root and then fetching
         and adding new nodes until either the queue is empty or the maximum size is reached
+
+        Parameters:
+        -----------
+        start_name : str
+            The name of the root article
+
+        queue_type : str
+            The type of queue to use (normal or priority)
+
+        verbose : bool
+            If the action should be logged verbosely
         """
 
         sorter = Sorter()
@@ -137,6 +160,19 @@ class GraphBuilder:
         return network
 
     def __run_build_loop(self, sorter:Sorter, verbose:bool) -> None:
+        """
+        The main loop to build a graph to request an article, add the content to the graph
+        and extend the queue with the found links
+
+        Parameters:
+        -----------
+        sorter : Sorter
+            The object to request articles with
+
+        verbose : bool
+            Should the action be logged verbosely
+        """
+
         while len(self.__nodes) < self.__max_graph_size:
             next_queue_entry = self.__queue.get_next_entry()
 
@@ -191,6 +227,24 @@ class GraphBuilder:
         return None
 
     def __build_edges_from_links(self, article_depth:int, new_info:dict[str, Any], article_id:int, verbose:bool) -> None:
+        """
+        Creating edges for the graph from the links
+
+        Parameters:
+        -----------
+        article_depth : int
+            The article depth of the link source
+
+        new_info : dict[str, Any]
+            The sorted information from  the article
+        
+        article_id : int
+            The id of the source article
+
+        verbose : bool
+            Should the action be logged verbosely
+        """
+
         new_links = []
         build_links = []
         
@@ -218,6 +272,24 @@ class GraphBuilder:
         return None
 
     def __update_queue_from_links(self, article_depth:int, article_id:int, new_links:list[str], verbose:bool) -> None:
+        """
+        Update the queue from links and add new entries for new links
+
+        Parameters:
+        -----------
+        article_depth : int
+            The depth of the source article
+
+        article_id : int
+            The id of the source article
+
+        new_links : list[str]
+            The links to update the queue
+
+        verbose : bool
+            Should the action be logged verbosely
+        """
+
         if verbose:
             report_statement = '' \
             f'Found {len(new_links)} links to unkown nodes'
@@ -238,6 +310,21 @@ class GraphBuilder:
         return None
 
     def __build_egdes_to_existing_nodes(self, article_id:int, build_links:list[str], verbose:bool) -> None:
+        """
+        Only updating the queue from the given queue
+
+        Parameters:
+        -----------
+        article_id : int
+            The id of the source article
+
+        build_links : list[str]
+            The links to update from
+
+        verbose : bool
+            Should the action be logged verbosely
+        """
+        
         if verbose:
             report_statement = '' \
             f'Found {len(build_links)} links to existing nodes and building edges'
@@ -253,6 +340,23 @@ class GraphBuilder:
         return None
 
     def __add_node(self, node_id:int, node_name:str, node_data:list[str], node_depth:int) -> None:
+        """
+        Adding a new node
+
+        Parameters:
+        -----------
+        node_id : int
+            The id of the article
+
+        node_name : int
+            The name of the article
+
+        node_data : list[str]
+            The keywords of the article
+
+        node_depth : int
+            The depth of the article
+        """
 
         new_node = Node(id = node_id, name = node_name, keywords = node_data, depth = node_depth)
 
@@ -261,6 +365,21 @@ class GraphBuilder:
         return None
 
     def __add_edges_toward_node(self, id_list:list[int], node_id:int, verbose:bool) -> None:
+        """
+        Adding edges towards a node
+
+        Parameters:
+        -----------
+        id_list : list[int]
+            The id's of nodes that link towards the article
+
+        node_id : int
+            The id of the node
+
+        verbose : bool
+            Should the action be logged verbosely
+        """
+
         if verbose:
             report_statement = '' \
             f'Adding {len(id_list)} edges from existing nodes toward current node.'

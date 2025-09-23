@@ -22,12 +22,29 @@ class FancyVisualizer:
     """
 
     def __init__(self, settings:dict[str, str]) -> None:
+        """
+        Sets up the object
+
+        Parameters:
+        -----------
+        settings : dict[str, str]
+            Settings to be used for visualization
+        """
+
         self.__settings:dict[str, str] = settings
         return None
     
     def generate_browser_graph(self, graph:Graph, verbose:bool) -> None:
         """
         Creates an html files containing an interactive visualization of the given Graph
+
+        Parameters:
+        -----------
+        graph : Graph
+            The graph to create an interactive browser view for
+
+        verbose : bool
+            Should the action be logged verbosely
         """
 
         custom_height = self.__settings.get("height")
@@ -95,6 +112,14 @@ class FancyVisualizer:
     def generate_cycle_graph(self, cyclic_graph:Graph, id:int) -> None:
         """
         Creates an html files containing an interactive visualization of the given circular Graph
+
+        Parameters:
+        -----------
+        cyclic_graph : Graph
+            The graph to visualize
+
+        id : int
+            The id of the cyclic graph
         """
 
         custom_height = self.__settings.get("height")

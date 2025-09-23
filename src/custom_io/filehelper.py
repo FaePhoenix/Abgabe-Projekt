@@ -6,19 +6,20 @@ from datastructures.graph.edge import Edge
 import os
 
 
-
-
 class FileHelper:
     """
     A class encapsulating methods for handeling graph files
 
     Methods:
     --------
-    write_graph_to_file(graph : Graph, file_name : str)
+    write_graph_to_file(graph : Graph, file_name : str) -> None
         Writes the given graph into a file at filename
 
-    read_graph_from_file(file_name : str)
+    read_graph_from_file(file_name : str) -> Graph | None
         Reads the file at file_name and returns the saved graph
+
+    write_cycles_to_file(origin_graph:Graph, cycles:list[Cycle]) -> None
+        Writes cycles to a file
     """
 
     def __init__(self) -> None:
@@ -136,6 +137,17 @@ class FileHelper:
         return None
     
     def __write_to_file(self, file_name:str, file_content:str) -> None:
+        """
+        Writes the content to the given file
+
+        Parameters:
+        -----------
+        file_name : str
+            Name of the file to write to
+
+        file_content : str
+            The content to write to the file
+        """
         full_file_name = self.__directory + "txtfiles\\" + file_name
 
         writing_parameter = "x"
@@ -289,6 +301,10 @@ class FileHelper:
         return file_content
 
     def __setup_folders(self) -> None:
+        """
+        Creates expected folder structure for later use
+        """
+
         txtfiles_path = self.__directory + "txtfiles"
         if not os.path.isdir(txtfiles_path):
             os.mkdir(txtfiles_path)
