@@ -693,7 +693,7 @@ class Parser:
         image_size, dpi = self.__get_static_vis_options()
 
         disected_file_position = os.path.realpath(__file__).split("\\")
-        project_folder = "\\".join(disected_file_position[:len(disected_file_position) - 4])
+        project_folder = '\\'.join(disected_file_position[:len(disected_file_position) - 3])
         images_folder_path = project_folder + "\\images\\"
 
         visualizer.save_image_from_graph(graph, images_folder_path, image_size, dpi, verbose)
